@@ -10,7 +10,7 @@
 <meta name="description" content="Free browser games. No download. No login. Just play. Arcade, action, puzzle, retro and more at Neon Spawn Point.">
 <meta property="og:title" content="Neon Spawn Point — Play Free Browser Games">
 <meta property="og:description" content="Free browser games. No download. No login. Just play.">
-<meta property="og:image" content="/Images/arcade-hero.png">
+<meta property="og:image" content="/images/arcade-hero.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -859,7 +859,7 @@ footer a:hover{color:var(--pink);}
 
 <!-- HERO -->
 <div class="hero">
-  <img class="hero-img" src="/Images/arcade-hero.png" alt="Neon Spawn Point Arcade" id="hero-img">
+  <img class="hero-img" src="/images/arcade-hero.png" alt="Neon Spawn Point Arcade" id="hero-img">
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-eyebrow">&#9632; Free &middot; No Login &middot; Play Now</div>
@@ -904,16 +904,23 @@ footer a:hover{color:var(--pink);}
       <div class="section-title">Today's <span>Pick</span></div>
     </div>
   </div>
-  <div class="featured-card" id="featured-card" onclick="location.href='/arcade'">
-    <div class="featured-img-placeholder">ARCADE</div>
+  <div class="featured-card" id="featured-card" onclick="location.href='/pacman'">
+    <div class="featured-img-placeholder" style="position:relative;background:linear-gradient(135deg,#000010 0%,#001800 50%,#000010 100%);">
+          <span style="position:absolute;font-size:50px;top:12%;left:8%;animation:deco-float 3s ease-in-out infinite;">&#129344;</span>
+          <span style="position:absolute;font-size:38px;top:18%;right:10%;animation:deco-float 3s ease-in-out infinite;animation-delay:0.6s;">&#128123;</span>
+          <span style="position:absolute;font-size:34px;bottom:18%;left:15%;animation:deco-float 3s ease-in-out infinite;animation-delay:1.2s;">&#128124;</span>
+          <span style="position:absolute;font-size:42px;bottom:12%;right:8%;animation:deco-float 3s ease-in-out infinite;animation-delay:1.8s;">&#128126;</span>
+          <span style="position:absolute;font-size:60px;top:50%;left:50%;transform:translate(-50%,-50%);animation:deco-float 3s ease-in-out infinite;animation-delay:0.4s;">&#129344;</span>
+          <a href="/pacman" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.75);border:1px solid rgba(255,45,120,0.6);color:#FF2D78;font-family:monospace;font-size:11px;padding:7px 14px;cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;z-index:5;">&#9974; FULLSCREEN</a>
+        </div>
     <div class="featured-badge">&#9733; Featured</div>
     <div class="featured-info">
       <div>
-        <div class="featured-genre" id="feat-genre">Arcade</div>
-        <div class="featured-name" id="feat-name">Coming Soon</div>
-        <div class="featured-desc" id="feat-desc">The featured game spot is ready and waiting. Check back soon — first game drops shortly.</div>
+        <div class="featured-genre" id="feat-genre">Arcade &middot; Classic</div>
+        <div class="featured-name" id="feat-name">Pac-Man</div>
+        <div class="featured-desc" id="feat-desc">Navigate the maze, eat all the dots, dodge the ghosts. The original arcade classic — live now.</div>
       </div>
-      <a href="/arcade" class="featured-play">&#9654; Play Now</a>
+      <a href="/pacman" class="featured-play">&#9654; Play Now</a>
     </div>
   </div>
 </div>
@@ -943,7 +950,7 @@ footer a:hover{color:var(--pink);}
   <!-- GAME GRID -->
   <div class="game-grid" id="game-grid">
     <!-- Placeholder cards until real games are added -->
-    <div class="game-card" onclick="location.href='/arcade'">
+    <div class="game-card" onclick="location.href='/pacman'">
       <div class="game-thumb-placeholder" style="background:linear-gradient(135deg,#1A0A2E,#2E0A1A);">&#127918;</div>
       <div class="game-play-overlay">&#9654; PLAY</div>
       <div class="game-info">
@@ -956,7 +963,7 @@ footer a:hover{color:var(--pink);}
       </div>
       <div class="badge-new">NEW</div>
     </div>
-    <div class="game-card" onclick="location.href='/arcade'">
+    <div class="game-card" onclick="location.href='/pacman'">
       <div class="game-thumb-placeholder" style="background:linear-gradient(135deg,#0A1A2E,#0A2E1A);">&#127923;</div>
       <div class="game-play-overlay">&#9654; PLAY</div>
       <div class="game-info">
@@ -968,7 +975,7 @@ footer a:hover{color:var(--pink);}
         </div>
       </div>
     </div>
-    <div class="game-card" onclick="location.href='/arcade'">
+    <div class="game-card" onclick="location.href='/pacman'">
       <div class="game-thumb-placeholder" style="background:linear-gradient(135deg,#1A1A0A,#2E1A0A);">&#129504;</div>
       <div class="game-play-overlay">&#9654; PLAY</div>
       <div class="game-info">
@@ -980,7 +987,7 @@ footer a:hover{color:var(--pink);}
         </div>
       </div>
     </div>
-    <div class="game-card" onclick="location.href='/arcade'">
+    <div class="game-card" onclick="location.href='/pacman'">
       <div class="game-thumb-placeholder" style="background:linear-gradient(135deg,#2E0A2E,#0A2E2E);">&#127939;</div>
       <div class="game-play-overlay">&#9654; PLAY</div>
       <div class="game-info">
@@ -992,7 +999,7 @@ footer a:hover{color:var(--pink);}
         </div>
       </div>
     </div>
-    <div class="game-card" onclick="location.href='/arcade'">
+    <div class="game-card" onclick="location.href='/pacman'">
       <div class="game-thumb-placeholder" style="background:linear-gradient(135deg,#0A2E0A,#1A2E0A);">&#127954;</div>
       <div class="game-play-overlay">&#9654; PLAY</div>
       <div class="game-info">
@@ -1004,7 +1011,7 @@ footer a:hover{color:var(--pink);}
         </div>
       </div>
     </div>
-    <div class="game-card" onclick="location.href='/arcade'">
+    <div class="game-card" onclick="location.href='/pacman'">
       <div class="game-thumb-placeholder" style="background:linear-gradient(135deg,#2E2E0A,#0A0A2E);">&#127950;</div>
       <div class="game-play-overlay">&#9654; PLAY</div>
       <div class="game-info">
@@ -1040,7 +1047,7 @@ footer a:hover{color:var(--pink);}
     </div>
   </div>
   <div class="platform-grid">
-    <div class="platform-card p-html" onclick="location.href='/arcade'">
+    <div class="platform-card p-html" onclick="location.href='/pacman'">
       <div class="platform-icon">&#127918;</div>
       <div class="platform-name">Play Free</div>
       <div class="platform-desc">HTML5 games that run right in your browser. No download, no account, no cost. Click and play.</div>
