@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>Pac-Man — Neon Spawn Point</title>
+<meta name="description" content="Play classic HTML5 Pac-Man free in your browser. No download, no login. Neon Spawn Point arcade.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Share+Tech+Mono&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --pink:   #FF2D78;
+  --cyan:   #00FFD1;
+  --yellow: #FFE600;
+  --dark:   #06060F;
+  --panel:  #0D0D1F;
+  --edge:   #1A1A35;
+  --text:   #E8E0F0;
+  --muted:  #6A6080;
+}
+html,body{
+  background:var(--dark);
+  color:var(--text);
+  font-family:'Barlow Condensed',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  touch-action:manipulation;
+}
+a{color:inherit;text-decoration:none;}
+
+/* SCANLINES */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+  pointer-events:none;
+  z-index:9998;
+}
+
+/* TICKER */
+.ticker-wrap{background:var(--pink);overflow:hidden;padding:6px 0;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--cyan);}
+.ticker-track{display:flex;gap:48px;white-space:nowrap;animation:nsp-ticker 30s linear infinite;}
+.ticker-item{font-family:'Share Tech Mono',monospace;font-size:11px;color:#000;text-transform:uppercase;letter-spacing:0.12em;flex-shrink:0;}
+.ticker-item::before{content:'▶ ';}
+@keyframes nsp-ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* NAV */
+.nav{
+  background:rgba(6,6,15,0.97);
+  border-bottom:1px solid var(--edge);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  height:52px;
+  position:sticky;
+  top:34px;
+  z-index:99;
+}
+.logo{font-family:'Bungee',sans-serif;font-size:18px;line-height:1;}
+.logo-neon{color:var(--pink);text-shadow:0 0 8px var(--pink);}
+.logo-spawn{color:var(--cyan);text-shadow:0 0 8px var(--cyan);}
+.nav-back{
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:0.08em;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:color 0.2s;
+}
+.nav-back:hover{color:var(--cyan);}
+.menu-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.menu-toggle span{display:block;width:22px;height:2px;background:var(--text);}
+@media(max-width:600px){
+  .nav-links{display:none;}
+  .menu-toggle{display:flex;}
+}
+.nav-mobile{display:none;flex-direction:column;background:var(--panel);border-bottom:1px solid var(--edge);position:sticky;top:86px;z-index:98;}
+.nav-mobile.open{display:flex;}
+.nav-mobile a{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:12px 20px;border-bottom:1px solid var(--edge);}
+
+/* GAME HEADER */
+.game-header{
+  padding:16px 20px 0;
+  max-width:600px;
+  margin:0 auto;
+}
+.game-breadcrumb{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.1em;
+  margin-bottom:10px;
+}
+.game-breadcrumb a{color:var(--pink);transition:color 0.2s;}
+.game-breadcrumb a:hover{color:var(--cyan);}
+.game-title-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:6px;
+  flex-wrap:wrap;
+}
+.game-title{
+  font-family:'Bungee',sans-serif;
+  font-size:clamp(22px,5vw,36px);
+  text-transform:uppercase;
+  color:var(--text);
+  line-height:1.0;
+}
+.game-badge{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  padding:4px 10px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  flex-shrink:0;
+}
+.badge-free{background:var(--cyan);color:#000;}
+.badge-arcade{background:var(--pink);color:#000;}
+.game-meta{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:0.06em;
+  margin-bottom:12px;
+}
+.game-meta span{color:var(--yellow);}
+
+/* GAME FRAME WRAP */
+.game-frame-wrap{
+  max-width:600px;
+  margin:0 auto;
+  padding:0 12px;
+}
+.game-screen{
+  border:2px solid var(--pink);
+  box-shadow:0 0 30px rgba(255,45,120,0.3),0 0 60px rgba(255,45,120,0.1);
+  background:#000;
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  aspect-ratio:342/450;
+}
+.game-screen iframe{
+  width:342px;
+  height:450px;
+  border:none;
+  display:block;
+  transform-origin:top left;
+}
+.game-screen .corner{
+  position:absolute;
+  width:12px;
+  height:12px;
+  border-color:var(--cyan);
+  border-style:solid;
+  z-index:2;
+}
+.corner-tl{top:0;left:0;border-width:2px 0 0 2px;}
+.corner-tr{top:0;right:0;border-width:2px 2px 0 0;}
+.corner-bl{bottom:0;left:0;border-width:0 0 2px 2px;}
+.corner-br{bottom:0;right:0;border-width:0 2px 2px 0;}
+
+/* CONTROLS BAR */
+.controls-bar{
+  max-width:600px;
+  margin:0 auto;
+  padding:10px 12px 6px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.controls-hint{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.controls-hint span{color:var(--yellow);}
+.fullscreen-btn{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:var(--cyan);
+  background:none;
+  border:1px solid var(--cyan);
+  padding:6px 14px;
+  cursor:pointer;
+  letter-spacing:0.08em;
+  transition:all 0.2s;
+}
+.fullscreen-btn:hover{background:var(--cyan);color:#000;}
+
+/* ARCADE JOYSTICK */
+.arcade-controls{
+  max-width:600px;
+  margin:0 auto;
+  padding:16px 20px 20px;
+  background:var(--panel);
+  border-top:1px solid var(--edge);
+  border-bottom:1px solid var(--edge);
+  margin-top:8px;
+}
+.arcade-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  text-align:center;
+  margin-bottom:14px;
+}
+.arcade-label span{color:var(--pink);}
+.joystick-layout{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:40px;
+}
+.dpad{
+  display:grid;
+  grid-template-columns:repeat(3,56px);
+  grid-template-rows:repeat(3,56px);
+  gap:4px;
+}
+.dpad-btn{
+  background:var(--dark);
+  border:2px solid var(--edge);
+  color:var(--text);
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  border-radius:6px;
+  transition:all 0.1s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  touch-action:manipulation;
+}
+.dpad-btn:active,
+.dpad-btn.pressed{
+  background:var(--pink);
+  border-color:var(--pink);
+  color:#000;
+  box-shadow:0 0 16px rgba(255,45,120,0.6);
+  transform:scale(0.93);
+}
+.dpad-center{
+  background:var(--edge);
+  border-color:var(--edge);
+  font-size:12px;
+  color:var(--muted);
+  font-family:'Share Tech Mono',monospace;
+  letter-spacing:0.05em;
+  cursor:default;
+}
+/* Grid positions */
+.dpad-up    {grid-column:2;grid-row:1;}
+.dpad-left  {grid-column:1;grid-row:2;}
+.dpad-center{grid-column:2;grid-row:2;}
+.dpad-right {grid-column:3;grid-row:2;}
+.dpad-down  {grid-column:2;grid-row:3;}
+
+/* Action buttons */
+.action-btns{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+}
+.action-btn{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  border:2px solid var(--edge);
+  background:var(--dark);
+  color:var(--text);
+  font-family:'Bungee',sans-serif;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  transition:all 0.1s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  touch-action:manipulation;
+}
+.action-btn .btn-icon{font-size:18px;line-height:1;}
+.action-btn .btn-label{font-size:9px;color:var(--muted);}
+.action-btn:active,.action-btn.pressed{transform:scale(0.9);}
+.btn-start:active,.btn-start.pressed{
+  background:var(--yellow);
+  border-color:var(--yellow);
+  color:#000;
+  box-shadow:0 0 16px rgba(255,230,0,0.6);
+}
+.btn-start .btn-label{color:var(--yellow);}
+.btn-pause:active,.btn-pause.pressed{
+  background:var(--cyan);
+  border-color:var(--cyan);
+  color:#000;
+  box-shadow:0 0 16px rgba(0,255,209,0.6);
+}
+.btn-pause .btn-label{color:var(--cyan);}
+
+/* GAME INFO */
+.game-info-section{
+  max-width:600px;
+  margin:24px auto 0;
+  padding:0 20px;
+}
+.info-tabs{
+  display:flex;
+  gap:0;
+  border-bottom:1px solid var(--edge);
+  margin-bottom:16px;
+}
+.info-tab{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  color:var(--muted);
+  padding:10px 16px;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all 0.2s;
+  background:none;
+  border-top:none;
+  border-left:none;
+  border-right:none;
+}
+.info-tab.active{color:var(--pink);border-bottom-color:var(--pink);}
+.info-panel{display:none;}
+.info-panel.active{display:block;}
+.how-to-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+.how-to-item{
+  background:var(--panel);
+  border:1px solid var(--edge);
+  padding:12px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+.hti-icon{font-size:20px;flex-shrink:0;}
+.hti-text{font-size:12px;color:var(--muted);line-height:1.5;}
+.hti-text strong{color:var(--text);display:block;margin-bottom:2px;font-size:13px;}
+.about-text{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px;}
+.about-text a{color:var(--pink);}
+.credit-row{
+  background:var(--panel);
+  border:1px solid var(--edge);
+  padding:12px 14px;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.credit-row a{color:var(--cyan);}
+
+/* RELATED */
+.related-section{
+  max-width:600px;
+  margin:24px auto 0;
+  padding:0 20px 60px;
+}
+.related-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  color:var(--cyan);
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.related-title{
+  font-family:'Bungee',sans-serif;
+  font-size:20px;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.related-title span{color:var(--pink);}
+.related-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+@media(max-width:400px){.related-grid{grid-template-columns:repeat(2,1fr);}}
+.related-card{
+  background:var(--panel);
+  border:1px solid var(--edge);
+  padding:14px 12px;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color 0.2s;
+  color:inherit;
+  display:block;
+  text-decoration:none;
+}
+.related-card:hover{border-color:var(--pink);}
+.related-icon{font-size:28px;margin-bottom:6px;}
+.related-name{
+  font-family:'Bungee',sans-serif;
+  font-size:11px;
+  text-transform:uppercase;
+  color:var(--text);
+  margin-bottom:2px;
+}
+.related-genre{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;}
+.related-badge-coming{
+  display:inline-block;
+  font-size:9px;
+  color:var(--muted);
+  border:1px solid var(--edge);
+  padding:1px 6px;
+  margin-top:4px;
+  font-family:'Share Tech Mono',monospace;
+  letter-spacing:0.08em;
+}
+
+/* SHARE ROW */
+.share-row{
+  max-width:600px;
+  margin:0 auto;
+  padding:0 20px 16px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.share-btn{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--muted);
+  background:var(--panel);
+  border:1px solid var(--edge);
+  padding:8px 14px;
+  cursor:pointer;
+  transition:all 0.2s;
+  flex-shrink:0;
+}
+.share-btn:hover{color:var(--pink);border-color:var(--pink);}
+
+/* FOOTER */
+footer{
+  background:var(--panel);
+  border-top:1px solid var(--edge);
+  padding:24px 20px;
+  text-align:center;
+}
+footer p{font-size:11px;color:var(--muted);margin-bottom:4px;line-height:1.6;}
+footer a{color:var(--muted);}
+footer a:hover{color:var(--pink);}
+.footer-logo{font-family:'Bungee',sans-serif;font-size:16px;margin-bottom:10px;}
+.fl-neon{color:var(--pink);text-shadow:0 0 6px var(--pink);}
+.fl-spawn{color:var(--cyan);text-shadow:0 0 6px var(--cyan);}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker-track">
+    <span class="ticker-item">Pac-Man — Classic Arcade</span>
+    <span class="ticker-item">Press N to start a new game</span>
+    <span class="ticker-item">Use arrow keys or D-pad below</span>
+    <span class="ticker-item">Eat all dots to advance</span>
+    <span class="ticker-item">Grab power pellets to eat ghosts</span>
+    <span class="ticker-item">Neon Spawn Point — Free Browser Games</span>
+    <span class="ticker-item">Pac-Man — Classic Arcade</span>
+    <span class="ticker-item">Press N to start a new game</span>
+    <span class="ticker-item">Use arrow keys or D-pad below</span>
+    <span class="ticker-item">Eat all dots to advance</span>
+    <span class="ticker-item">Grab power pellets to eat ghosts</span>
+    <span class="ticker-item">Neon Spawn Point — Free Browser Games</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="logo" href="/">
+    <span class="logo-neon">NEON</span><span class="logo-spawn">SPAWN</span>POINT
+  </a>
+  <a href="/arcade" class="nav-back">&#8592; Arcade</a>
+  <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/">Home</a>
+  <a href="/arcade">Arcade</a>
+  <a href="/genres">Genres</a>
+  <a href="/store">Store</a>
+</div>
+
+<!-- GAME HEADER -->
+<div class="game-header">
+  <div class="game-breadcrumb">
+    <a href="/">Home</a> &rsaquo; <a href="/arcade">Arcade</a> &rsaquo; Pac-Man
+  </div>
+  <div class="game-title-row">
+    <div class="game-title">Pac-Man</div>
+    <span class="game-badge badge-free">Free</span>
+    <span class="game-badge badge-arcade">Arcade</span>
+  </div>
+  <div class="game-meta">
+    By <span>Dale Harvey</span> &nbsp;&middot;&nbsp; HTML5 Canvas &nbsp;&middot;&nbsp; WTFPL License
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="game-frame-wrap">
+  <div class="game-screen" id="game-screen">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <iframe
+      id="game-iframe"
+      src="/games/index.html"
+      scrolling="no"
+      allowfullscreen
+      title="Pac-Man">
+    </iframe>
+  </div>
+</div>
+
+<!-- CONTROLS BAR -->
+<div class="controls-bar">
+  <div class="controls-hint">
+    Keyboard: <span>Arrow Keys</span> &nbsp;&middot;&nbsp; Start: <span>N</span>
+  </div>
+  <button class="fullscreen-btn" onclick="goFullscreen()">&#9974; Fullscreen</button>
+</div>
+
+<!-- SHARE ROW -->
+<div class="share-row">
+  <button class="share-btn" onclick="shareGame()">&#128241; Share Game</button>
+  <button class="share-btn" onclick="copyLink()">&#128279; Copy Link</button>
+  <a href="/arcade" class="share-btn">&#9664; Back to Arcade</a>
+</div>
+
+<!-- ARCADE JOYSTICK -->
+<div class="arcade-controls">
+  <div class="arcade-label">&#9632; <span>Arcade Controls</span> &nbsp;&middot;&nbsp; Touch to play on mobile</div>
+  <div class="joystick-layout">
+
+    <!-- D-PAD -->
+    <div class="dpad">
+      <button class="dpad-btn dpad-up"    id="btn-up"    onpointerdown="dpadPress('up')"    onpointerup="dpadRelease('up')"    onpointercancel="dpadRelease('up')">&#9650;</button>
+      <button class="dpad-btn dpad-left"  id="btn-left"  onpointerdown="dpadPress('left')"  onpointerup="dpadRelease('left')"  onpointercancel="dpadRelease('left')">&#9664;</button>
+      <button class="dpad-btn dpad-center">&#9679;</button>
+      <button class="dpad-btn dpad-right" id="btn-right" onpointerdown="dpadPress('right')" onpointerup="dpadRelease('right')" onpointercancel="dpadRelease('right')">&#9654;</button>
+      <button class="dpad-btn dpad-down"  id="btn-down"  onpointerdown="dpadPress('down')"  onpointerup="dpadRelease('down')"  onpointercancel="dpadRelease('down')">&#9660;</button>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-btns">
+      <button class="action-btn btn-start" id="btn-start" onpointerdown="actionPress('start')" onpointerup="actionRelease('start')" onpointercancel="actionRelease('start')">
+        <span class="btn-icon">&#9654;</span>
+        <span class="btn-label">START</span>
+      </button>
+      <button class="action-btn btn-pause" id="btn-pause" onpointerdown="actionPress('pause')" onpointerup="actionRelease('pause')" onpointercancel="actionRelease('pause')">
+        <span class="btn-icon">&#9646;&#9646;</span>
+        <span class="btn-label">PAUSE</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- GAME INFO TABS -->
+<div class="game-info-section">
+  <div class="info-tabs">
+    <button class="info-tab active" onclick="showTab('how',this)">How to Play</button>
+    <button class="info-tab" onclick="showTab('about',this)">About</button>
+  </div>
+
+  <div class="info-panel active" id="tab-how">
+    <div class="how-to-grid">
+      <div class="how-to-item">
+        <div class="hti-icon">&#127918;</div>
+        <div class="hti-text"><strong>Move</strong>Arrow keys or D-pad below to navigate the maze</div>
+      </div>
+      <div class="how-to-item">
+        <div class="hti-icon">&#9679;</div>
+        <div class="hti-text"><strong>Eat Dots</strong>Clear all dots in the maze to advance to the next level</div>
+      </div>
+      <div class="how-to-item">
+        <div class="hti-icon">&#9762;</div>
+        <div class="hti-text"><strong>Power Pellets</strong>Grab the flashing dots to turn ghosts blue and eat them</div>
+      </div>
+      <div class="how-to-item">
+        <div class="hti-icon">&#9650;</div>
+        <div class="hti-text"><strong>Start / Restart</strong>Press N on keyboard or tap START button below the game</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-panel" id="tab-about">
+    <p class="about-text">Classic HTML5 Pac-Man built by Dale Harvey. Runs entirely in your browser using HTML5 Canvas and JavaScript — no plugins, no downloads.</p>
+    <p class="about-text">Released under the WTFPL license — one of the most permissive open source licenses ever written.</p>
+    <div class="credit-row">
+      Original by <a href="https://github.com/daleharvey/pacman" target="_blank">Dale Harvey</a> &nbsp;&middot;&nbsp;
+      WTFPL License &nbsp;&middot;&nbsp;
+      Hosted on <a href="https://neonspawn.pages.dev">Neon Spawn Point</a>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED GAMES -->
+<div class="related-section">
+  <div class="related-label">&#9608; More Games</div>
+  <div class="related-title">Keep <span>Playing</span></div>
+  <div class="related-grid">
+    <a href="/arcade" class="related-card">
+      <div class="related-icon">&#128640;</div>
+      <div class="related-name">Asteroids</div>
+      <div class="related-genre">Arcade</div>
+      <div class="related-badge-coming">Coming Soon</div>
+    </a>
+    <a href="/arcade" class="related-card">
+      <div class="related-icon">&#128013;</div>
+      <div class="related-name">Snake</div>
+      <div class="related-genre">Arcade</div>
+      <div class="related-badge-coming">Coming Soon</div>
+    </a>
+    <a href="/arcade" class="related-card">
+      <div class="related-icon">&#127999;</div>
+      <div class="related-name">Breakout</div>
+      <div class="related-genre">Arcade</div>
+      <div class="related-badge-coming">Coming Soon</div>
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <span class="fl-neon">NEON</span><span class="fl-spawn">SPAWN</span>POINT
+  </div>
+  <p class="disclosure">Pac-Man is hosted under WTFPL license. Original by Dale Harvey. Not affiliated with Namco/Bandai.</p>
+  <p>
+    <span id="nsp-copyright">&copy; 2026 Neon Spawn Point &middot; Forged Oak Studios &middot;</span>
+    <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a>
+  </p>
+</footer>
+
+<script>
+// ── IFRAME RESIZE ──────────────────────────────────────────────
+function resizeIframe() {
+  var screen = document.getElementById('game-screen');
+  var iframe = document.getElementById('game-iframe');
+  if (!screen || !iframe) return;
+  var w = screen.offsetWidth;
+  var scale = w / 342;
+  iframe.style.width  = '342px';
+  iframe.style.height = '450px';
+  iframe.style.transform = 'scale(' + scale + ')';
+  screen.style.height = Math.round(450 * scale) + 'px';
+}
+resizeIframe();
+window.addEventListener('resize', resizeIframe);
+
+// ── DPAD — send arrow key events to iframe ────────────────────
+var KEY_MAP = {
+  up:    {key:'ArrowUp',    keyCode:38},
+  down:  {key:'ArrowDown',  keyCode:40},
+  left:  {key:'ArrowLeft',  keyCode:37},
+  right: {key:'ArrowRight', keyCode:39}
+};
+
+function sendKey(type, dir) {
+  var iframe = document.getElementById('game-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  var map = KEY_MAP[dir];
+  if (!map) return;
+  try {
+    var evt = new KeyboardEvent(type, {
+      key: map.key,
+      keyCode: map.keyCode,
+      which: map.keyCode,
+      code: map.key,
+      bubbles: true,
+      cancelable: true
+    });
+    iframe.contentDocument.dispatchEvent(evt);
+    iframe.contentWindow.dispatchEvent(evt);
+  } catch(e) {}
+}
+
+function dpadPress(dir) {
+  var btn = document.getElementById('btn-' + dir);
+  if (btn) btn.classList.add('pressed');
+  sendKey('keydown', dir);
+}
+function dpadRelease(dir) {
+  var btn = document.getElementById('btn-' + dir);
+  if (btn) btn.classList.remove('pressed');
+  sendKey('keyup', dir);
+}
+
+// ── ACTION BUTTONS ────────────────────────────────────────────
+function actionPress(action) {
+  var btn = document.getElementById('btn-' + action);
+  if (btn) btn.classList.add('pressed');
+  var iframe = document.getElementById('game-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  try {
+    var key, code;
+    if (action === 'start') { key = 'n'; code = 'KeyN'; }
+    if (action === 'pause') { key = 'p'; code = 'KeyP'; }
+    var evt = new KeyboardEvent('keydown', {key:key, code:code, keyCode: key.charCodeAt(0), bubbles:true, cancelable:true});
+    iframe.contentDocument.dispatchEvent(evt);
+    iframe.contentWindow.dispatchEvent(evt);
+  } catch(e) {}
+}
+function actionRelease(action) {
+  var btn = document.getElementById('btn-' + action);
+  if (btn) btn.classList.remove('pressed');
+}
+
+// ── FULLSCREEN ────────────────────────────────────────────────
+function goFullscreen() {
+  var screen = document.getElementById('game-screen');
+  if (screen.requestFullscreen) screen.requestFullscreen();
+  else if (screen.webkitRequestFullscreen) screen.webkitRequestFullscreen();
+}
+
+// ── INFO TABS ─────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.info-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.info-tab').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── SHARE ─────────────────────────────────────────────────────
+function shareGame() {
+  var url = window.location.href;
+  if (navigator.share) {
+    navigator.share({title:'Play Pac-Man free on Neon Spawn Point', url: url});
+  } else { copyLink(); }
+}
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(function() {
+    alert('Link copied!');
+  });
+}
+
+// ── NAV HAMBURGER ─────────────────────────────────────────────
+var menuToggle = document.getElementById('menu-toggle');
+if (menuToggle) {
+  menuToggle.addEventListener('click', function() {
+    var nm = document.getElementById('nav-mobile');
+    if (nm) nm.classList.toggle('open');
+  });
+}
+
+// ── PREVENT SCROLL ON DPAD TOUCH ─────────────────────────────
+document.querySelectorAll('.dpad-btn,.action-btn').forEach(function(btn) {
+  btn.addEventListener('touchstart', function(e) { e.preventDefault(); }, {passive: false});
+  btn.addEventListener('touchend',   function(e) { e.preventDefault(); }, {passive: false});
+});
+</script>
+</body>
+</html>
