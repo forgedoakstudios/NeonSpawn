@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Arcade — Neon Spawn Point</title>
+<meta name="description" content="Browse and play free HTML5 browser games. No download, no login. Arcade, action, puzzle, retro and more.">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Share+Tech+Mono&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --pink:   #FF2D78;
+  --cyan:   #00FFD1;
+  --yellow: #FFE600;
+  --purple: #9B30FF;
+  --dark:   #06060F;
+  --panel:  #0D0D1F;
+  --edge:   #1A1A35;
+  --text:   #E8E0F0;
+  --muted:  #6A6080;
+}
+html,body{background:var(--dark);color:var(--text);font-family:'Barlow Condensed',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9998;}
+
+/* TICKER */
+.ticker-wrap{background:var(--pink);overflow:hidden;padding:6px 0;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--cyan);}
+.ticker-track{display:flex;gap:48px;white-space:nowrap;animation:nsp-ticker 30s linear infinite;}
+.ticker-item{font-family:'Share Tech Mono',monospace;font-size:11px;color:#000;text-transform:uppercase;letter-spacing:0.12em;flex-shrink:0;}
+.ticker-item::before{content:'▶ ';}
+@keyframes nsp-ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* NAV */
+.nav{background:rgba(6,6,15,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--edge);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;position:sticky;top:34px;z-index:99;}
+.logo{font-family:'Bungee',sans-serif;font-size:20px;line-height:1;}
+.logo-neon{color:var(--pink);text-shadow:0 0 8px var(--pink);}
+.logo-spawn{color:var(--cyan);text-shadow:0 0 8px var(--cyan);}
+.nav-links{display:flex;align-items:center;gap:24px;}
+.nav-links a{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);transition:color 0.2s;}
+.nav-links a:hover{color:var(--cyan);}
+.nav-links a.active{color:var(--pink);}
+.nav-insert{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);border:1px solid var(--yellow);padding:5px 12px;letter-spacing:0.1em;animation:blink 1.2s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.menu-toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;}
+.menu-toggle span{display:block;width:22px;height:2px;background:var(--text);}
+.nav-mobile{display:none;flex-direction:column;background:var(--panel);border-bottom:1px solid var(--edge);position:sticky;top:86px;z-index:98;}
+.nav-mobile.open{display:flex;}
+.nav-mobile a{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:12px 20px;border-bottom:1px solid var(--edge);}
+.nav-mobile a:hover{color:var(--pink);}
+@media(max-width:768px){.nav-links,.nav-insert{display:none;}.menu-toggle{display:flex;}}
+
+/* PAGE HEADER */
+.page-header{
+  background:linear-gradient(180deg,rgba(255,45,120,0.08) 0%,transparent 100%);
+  border-bottom:1px solid var(--edge);
+  padding:32px 24px 24px;
+}
+.page-eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;}
+.page-title{font-family:'Bungee',sans-serif;font-size:clamp(28px,6vw,48px);text-transform:uppercase;line-height:1.0;margin-bottom:8px;}
+.page-title span{color:var(--pink);text-shadow:0 0 16px rgba(255,45,120,0.4);}
+.page-sub{font-size:14px;color:var(--muted);max-width:500px;line-height:1.5;}
+.page-stats{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap;}
+.page-stat{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:0.08em;}
+.page-stat span{color:var(--yellow);}
+
+/* FILTER BAR */
+.filter-bar{
+  background:var(--panel);
+  border-bottom:1px solid var(--edge);
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  position:sticky;
+  top:86px;
+  z-index:97;
+}
+.filter-bar::-webkit-scrollbar{display:none;}
+.filter-divider{width:1px;height:20px;background:var(--edge);flex-shrink:0;margin:0 4px;}
+.genre-btn{font-family:'Share Tech Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);background:var(--dark);border:1px solid var(--edge);padding:7px 14px;cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;}
+.genre-btn:hover{color:var(--pink);border-color:var(--pink);}
+.genre-btn.active{color:var(--pink);border-color:var(--pink);box-shadow:0 0 10px rgba(255,45,120,0.25);}
+.sort-btn{font-family:'Share Tech Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);background:none;border:none;padding:7px 0;cursor:pointer;white-space:nowrap;transition:color 0.2s;flex-shrink:0;}
+.sort-btn:hover,.sort-btn.active{color:var(--cyan);}
+
+/* GAME GRID */
+.arcade-wrap{padding:24px 20px 60px;max-width:1100px;margin:0 auto;}
+.results-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.results-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.08em;}
+.results-count span{color:var(--yellow);}
+.game-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px;
+}
+@media(max-width:500px){.game-grid{grid-template-columns:repeat(2,1fr);gap:10px;}}
+
+/* GAME CARD */
+.game-card{
+  background:var(--panel);
+  border:1px solid var(--edge);
+  overflow:hidden;
+  cursor:pointer;
+  transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;
+  text-decoration:none;
+  display:block;
+  color:inherit;
+  position:relative;
+}
+.game-card:hover{border-color:var(--pink);transform:translateY(-3px);box-shadow:0 8px 32px rgba(255,45,120,0.2);}
+.game-card:hover .play-overlay{opacity:1;}
+.game-thumb{
+  width:100%;
+  aspect-ratio:16/9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:48px;
+  position:relative;
+  overflow:hidden;
+}
+.game-thumb-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.play-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(255,45,120,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transition:opacity 0.2s;
+  font-family:'Bungee',sans-serif;
+  font-size:16px;
+  color:var(--text);
+  letter-spacing:0.1em;
+  text-shadow:0 0 10px var(--pink);
+  z-index:2;
+}
+.game-badge-new{
+  position:absolute;
+  top:8px;right:8px;
+  background:var(--pink);
+  color:#000;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  padding:3px 7px;
+  letter-spacing:0.1em;
+  box-shadow:0 0 10px rgba(255,45,120,0.6);
+  z-index:3;
+  text-transform:uppercase;
+}
+.game-badge-hot{
+  position:absolute;
+  top:8px;right:8px;
+  background:var(--yellow);
+  color:#000;
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  padding:3px 7px;
+  z-index:3;
+  text-transform:uppercase;
+}
+.game-info{padding:12px 14px;}
+.game-genre-tag{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--cyan);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:4px;}
+.game-name{font-family:'Bungee',sans-serif;font-size:15px;text-transform:uppercase;color:var(--text);margin-bottom:6px;line-height:1.2;}
+.game-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.game-footer{display:flex;align-items:center;justify-content:space-between;}
+.game-source-tag{font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;letter-spacing:0.06em;}
+.game-type-badge{font-family:'Share Tech Mono',monospace;font-size:9px;padding:3px 8px;text-transform:uppercase;letter-spacing:0.1em;}
+.badge-free{background:var(--cyan);color:#000;}
+.badge-itch{background:var(--yellow);color:#000;}
+.badge-store{background:var(--purple);color:#fff;}
+.badge-coming{background:var(--edge);color:var(--muted);border:1px solid var(--edge);}
+
+/* COMING SOON CARD */
+.game-card.coming{opacity:0.5;cursor:default;}
+.game-card.coming:hover{transform:none;box-shadow:none;border-color:var(--edge);}
+.game-card.coming:hover .play-overlay{opacity:0;}
+
+/* SUBMIT SECTION */
+.submit-section{
+  background:var(--panel);
+  border:1px solid var(--edge);
+  border-left:3px solid var(--cyan);
+  padding:20px 24px;
+  margin:32px 0 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.submit-text{}
+.submit-title{font-family:'Bungee',sans-serif;font-size:16px;text-transform:uppercase;color:var(--text);margin-bottom:4px;}
+.submit-sub{font-size:13px;color:var(--muted);}
+.submit-btn{
+  background:var(--cyan);
+  color:#000;
+  font-family:'Bungee',sans-serif;
+  font-size:13px;
+  text-transform:uppercase;
+  padding:12px 24px;
+  border:none;
+  cursor:pointer;
+  white-space:nowrap;
+  letter-spacing:0.06em;
+  transition:all 0.2s;
+  flex-shrink:0;
+}
+.submit-btn:hover{box-shadow:0 0 20px rgba(0,255,209,0.5);}
+
+/* FOOTER */
+footer{background:var(--panel);border-top:1px solid var(--edge);padding:24px 20px;text-align:center;}
+footer p{font-size:11px;color:var(--muted);margin-bottom:4px;line-height:1.6;}
+footer a{color:var(--muted);}
+footer a:hover{color:var(--pink);}
+.footer-logo{font-family:'Bungee',sans-serif;font-size:16px;margin-bottom:10px;}
+.fl-neon{color:var(--pink);text-shadow:0 0 6px var(--pink);}
+.fl-spawn{color:var(--cyan);text-shadow:0 0 6px var(--cyan);}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker-track">
+    <span class="ticker-item">Neon Spawn Point Arcade</span>
+    <span class="ticker-item">Free Browser Games</span>
+    <span class="ticker-item">No Download Required</span>
+    <span class="ticker-item">New Games Added Weekly</span>
+    <span class="ticker-item">Arcade &middot; Action &middot; Puzzle &middot; Retro &middot; Strategy</span>
+    <span class="ticker-item">Neon Spawn Point Arcade</span>
+    <span class="ticker-item">Free Browser Games</span>
+    <span class="ticker-item">No Download Required</span>
+    <span class="ticker-item">New Games Added Weekly</span>
+    <span class="ticker-item">Arcade &middot; Action &middot; Puzzle &middot; Retro &middot; Strategy</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="logo" href="/"><span class="logo-neon">NEON</span><span class="logo-spawn">SPAWN</span>POINT</a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/arcade" class="active">Arcade</a>
+    <a href="/new">New</a>
+    <a href="/genres">Genres</a>
+    <a href="/store">Store</a>
+    <a href="/about">About</a>
+  </div>
+  <div class="nav-insert">&#9654; INSERT COIN</div>
+  <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="/">Home</a>
+  <a href="/arcade">Arcade</a>
+  <a href="/new">New Games</a>
+  <a href="/genres">Browse Genres</a>
+  <a href="/store">Store</a>
+  <a href="/about">About</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-eyebrow">&#9608; Full Library</div>
+  <div class="page-title">The <span>Arcade</span></div>
+  <div class="page-sub">Free browser games. No download, no account. Pick a game and play.</div>
+  <div class="page-stats">
+    <div class="page-stat"><span id="stat-total">1</span> Games Live</div>
+    <div class="page-stat"><span>8</span> Genres</div>
+    <div class="page-stat"><span>Free</span> Always</div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="genre-btn active" onclick="filterGames('all',this)">All</button>
+  <button class="genre-btn" onclick="filterGames('arcade',this)">Arcade</button>
+  <button class="genre-btn" onclick="filterGames('action',this)">Action</button>
+  <button class="genre-btn" onclick="filterGames('puzzle',this)">Puzzle</button>
+  <button class="genre-btn" onclick="filterGames('retro',this)">Retro</button>
+  <button class="genre-btn" onclick="filterGames('strategy',this)">Strategy</button>
+  <button class="genre-btn" onclick="filterGames('rpg',this)">RPG</button>
+  <button class="genre-btn" onclick="filterGames('racing',this)">Racing</button>
+  <div class="filter-divider"></div>
+  <button class="sort-btn active" onclick="sortGames('popular',this)">&#9650; Popular</button>
+  <button class="sort-btn" onclick="sortGames('new',this)">New</button>
+  <button class="sort-btn" onclick="sortGames('az',this)">A-Z</button>
+</div>
+
+<!-- GAME GRID -->
+<div class="arcade-wrap">
+  <div class="results-bar">
+    <div class="results-count"><span id="results-count">1</span> games found</div>
+  </div>
+
+  <div class="game-grid" id="game-grid">
+
+    <!-- PAC-MAN — LIVE -->
+    <a href="/pacman" class="game-card" data-genre="arcade" data-source="html5" data-status="live">
+      <div class="game-thumb" style="background:linear-gradient(135deg,#000010,#001000);">
+        <span style="z-index:1;">&#128122;</span>
+        <div class="play-overlay">&#9654; PLAY</div>
+      </div>
+      <div class="game-badge-hot">&#9733; LIVE</div>
+      <div class="game-info">
+        <div class="game-genre-tag">Arcade &middot; Classic</div>
+        <div class="game-name">Pac-Man</div>
+        <div class="game-desc">Navigate the maze, eat all the dots, dodge the ghosts. The original arcade classic.</div>
+        <div class="game-footer">
+          <span class="game-source-tag">HTML5</span>
+          <span class="game-type-badge badge-free">Free</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- COMING SOON CARDS -->
+    <div class="game-card coming" data-genre="arcade" data-status="coming">
+      <div class="game-thumb" style="background:linear-gradient(135deg,#0A0A1A,#1A0A0A);">
+        <span style="z-index:1;">&#128640;</span>
+      </div>
+      <div class="game-info">
+        <div class="game-genre-tag">Arcade</div>
+        <div class="game-name">Asteroids</div>
+        <div class="game-desc">Blast through waves of asteroids in deep space. Classic shooter action.</div>
+        <div class="game-footer">
+          <span class="game-source-tag">HTML5</span>
+          <span class="game-type-badge badge-coming">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card coming" data-genre="arcade" data-status="coming">
+      <div class="game-thumb" style="background:linear-gradient(135deg,#0A1A0A,#001A10);">
+        <span style="z-index:1;">&#128013;</span>
+      </div>
+      <div class="game-info">
+        <div class="game-genre-tag">Arcade</div>
+        <div class="game-name">Snake</div>
+        <div class="game-desc">Eat, grow, don't crash. The timeless mobile classic in your browser.</div>
+        <div class="game-footer">
+          <span class="game-source-tag">HTML5</span>
+          <span class="game-type-badge badge-coming">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card coming" data-genre="arcade" data-status="coming">
+      <div class="game-thumb" style="background:linear-gradient(135deg,#1A0A1A,#0A0A2A);">
+        <span style="z-index:1;">&#127999;</span>
+      </div>
+      <div class="game-info">
+        <div class="game-genre-tag">Arcade</div>
+        <div class="game-name">Breakout</div>
+        <div class="game-desc">Break every brick with a bouncing ball. Arkanoid-style arcade action.</div>
+        <div class="game-footer">
+          <span class="game-source-tag">HTML5</span>
+          <span class="game-type-badge badge-coming">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card coming" data-genre="puzzle" data-status="coming">
+      <div class="game-thumb" style="background:linear-gradient(135deg,#1A1A0A,#2A1A00);">
+        <span style="z-index:1;">&#129000;</span>
+      </div>
+      <div class="game-info">
+        <div class="game-genre-tag">Puzzle</div>
+        <div class="game-name">2048</div>
+        <div class="game-desc">Slide and merge tiles to reach 2048. Addictive number puzzle.</div>
+        <div class="game-footer">
+          <span class="game-source-tag">HTML5</span>
+          <span class="game-type-badge badge-coming">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-card coming" data-genre="action" data-status="coming">
+      <div class="game-thumb" style="background:linear-gradient(135deg,#1A0000,#2A0A0A);">
+        <span style="z-index:1;">&#128256;</span>
+      </div>
+      <div class="game-info">
+        <div class="game-genre-tag">Action</div>
+        <div class="game-name">Space Invaders</div>
+        <div class="game-desc">Defend Earth from waves of alien invaders. Shoot fast or get hit.</div>
+        <div class="game-footer">
+          <span class="game-source-tag">HTML5</span>
+          <span class="game-type-badge badge-coming">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUBMIT A GAME -->
+  <div class="submit-section">
+    <div class="submit-text">
+      <div class="submit-title">Know a great free game?</div>
+      <div class="submit-sub">Submit open source HTML5 games for the arcade. MIT or WTFPL license required.</div>
+    </div>
+    <button class="submit-btn" onclick="alert('Submissions opening soon!')">Submit a Game &rarr;</button>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span class="fl-neon">NEON</span><span class="fl-spawn">SPAWN</span>POINT</div>
+  <p class="disclosure">Neon Spawn Point is an independent game portal. Not affiliated with any game developer or publisher.</p>
+  <p>
+    <span id="nsp-copyright">&copy; 2026 Neon Spawn Point &middot; Forged Oak Studios &middot;</span>
+    <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/contact">Contact</a>
+  </p>
+</footer>
+
+<script>
+// ── NAV ───────────────────────────────────────────────────────
+var menuToggle = document.getElementById('menu-toggle');
+if (menuToggle) {
+  menuToggle.addEventListener('click', function() {
+    var nm = document.getElementById('nav-mobile');
+    if (nm) nm.classList.toggle('open');
+  });
+}
+
+// ── TICKER ────────────────────────────────────────────────────
+fetch('/articles.json?v=' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(a) {
+    var t = document.getElementById('ticker-track');
+    if (!t || !a.length) return;
+    t.innerHTML = '';
+    var items = a.concat(a);
+    items.forEach(function(x) {
+      var sp = document.createElement('span');
+      sp.className = 'ticker-item';
+      sp.textContent = (x.emoji || '\u26A1') + ' ' + x.title;
+      sp.addEventListener('click', function() { location.href = '/articles/' + x.slug; });
+      t.appendChild(sp);
+    });
+  })
+  .catch(function() {});
+
+// ── FILTER ────────────────────────────────────────────────────
+var allCards = [];
+
+window.addEventListener('load', function() {
+  allCards = Array.from(document.querySelectorAll('.game-grid .game-card'));
+  updateCount();
+});
+
+function filterGames(genre, btn) {
+  document.querySelectorAll('.genre-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  allCards.forEach(function(card) {
+    var cg = card.getAttribute('data-genre') || 'all';
+    if (genre === 'all' || cg === genre) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  updateCount();
+}
+
+function sortGames(type, btn) {
+  document.querySelectorAll('.sort-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+function updateCount() {
+  var visible = allCards.filter(function(c) { return c.style.display !== 'none'; }).length;
+  var el = document.getElementById('results-count');
+  var st = document.getElementById('stat-total');
+  var live = allCards.filter(function(c) { return c.getAttribute('data-status') === 'live'; }).length;
+  if (el) el.textContent = visible;
+  if (st) st.textContent = live;
+}
+
+// ── DEBUG ─────────────────────────────────────────────────────
+(function() {
+  var HOLD = 1500;
+  var KEY  = 'nsp-debug';
+  var timer = null;
+  var active = localStorage.getItem(KEY) === '1';
+  function applyDebug() {
+    var ind = document.getElementById('nsp-debug-ind');
+    if (!ind) {
+      ind = document.createElement('div');
+      ind.id = 'nsp-debug-ind';
+      ind.style.cssText = 'position:fixed;bottom:14px;right:14px;z-index:9999;background:var(--pink);color:#000;font-family:monospace;font-weight:800;font-size:12px;padding:6px 14px;border-radius:20px;cursor:pointer;display:none;';
+      ind.textContent = 'DEBUG ON';
+      ind.onclick = function() { active = false; localStorage.setItem(KEY,'0'); applyDebug(); };
+      document.body.appendChild(ind);
+    }
+    ind.style.display = active ? 'block' : 'none';
+  }
+  var el = document.getElementById('nsp-copyright');
+  if (el) {
+    el.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      timer = setTimeout(function() { active = !active; localStorage.setItem(KEY, active ? '1':'0'); applyDebug(); }, HOLD);
+    }, {passive:false});
+    el.addEventListener('touchend', function() { clearTimeout(timer); });
+  }
+  applyDebug();
+})();
+</script>
+</body>
+</html>
