@@ -52,9 +52,12 @@ a{color:inherit;text-decoration:none;}
 
 /* ── PAGE BACKGROUND ── */
 .page-bg{
-  background:radial-gradient(ellipse at center top, #1A1A2E 0%, #0A0A12 60%, #050508 100%);
+  background:radial-gradient(ellipse at center, #1A1A2E 0%, #050508 100%);
   min-height:100vh;
-  padding:16px 0 40px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:12px 0 24px;
 }
 
 /* ── ARCADE CABINET ── */
@@ -312,18 +315,16 @@ a{color:inherit;text-decoration:none;}
 .joy-dir-right{right:14px;top:50%;transform:translateY(-50%);}
 
 /* Touch zones */
-.joy-zone{
+.joy-drag-zone{
   position:absolute;
+  inset:0;
   z-index:5;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
-  touch-action:manipulation;
+  touch-action:none;
   cursor:pointer;
+  border-radius:50%;
 }
-.joy-up   {top:0;left:15%;width:70%;height:38%;}
-.joy-down {bottom:0;left:15%;width:70%;height:38%;}
-.joy-left {top:15%;left:0;width:38%;height:70%;}
-.joy-right{top:15%;right:0;width:38%;height:70%;}
 
 /* Joystick shaft */
 .joy-shaft{
@@ -504,29 +505,7 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
 <body>
 <div id="shim">shim</div>
 
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker-track" id="ticker-track">
-    <span class="ticker-item">Pac-Man — Classic Arcade</span>
-    <span class="ticker-item">Tap START or press N to begin</span>
-    <span class="ticker-item">Use joystick or arrow keys to move</span>
-    <span class="ticker-item">Eat all dots to advance levels</span>
-    <span class="ticker-item">Power pellets let you eat ghosts</span>
-    <span class="ticker-item">Neon Spawn Point — Free Browser Games</span>
-    <span class="ticker-item">Pac-Man — Classic Arcade</span>
-    <span class="ticker-item">Tap START or press N to begin</span>
-    <span class="ticker-item">Use joystick or arrow keys to move</span>
-    <span class="ticker-item">Eat all dots to advance levels</span>
-    <span class="ticker-item">Power pellets let you eat ghosts</span>
-    <span class="ticker-item">Neon Spawn Point — Free Browser Games</span>
-  </div>
 </div>
-
-<!-- NAV -->
-<nav class="nav">
-  <a class="logo" href="/"><span class="logo-neon">NEON</span><span class="logo-spawn">SPAWN</span>POINT</a>
-  <a href="/arcade" class="nav-back">&#8592; Arcade</a>
-</nav>
 
 <div class="page-bg">
 <div class="cabinet-wrap">
@@ -587,10 +566,7 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
             </div>
             <div class="joy-shaft"></div>
             <!-- Touch zones -->
-            <div class="joy-zone joy-up"    onpointerdown="joyPress('up')"    onpointerup="joyRelease('up')"    onpointercancel="joyRelease('up')"></div>
-            <div class="joy-zone joy-down"  onpointerdown="joyPress('down')"  onpointerup="joyRelease('down')"  onpointercancel="joyRelease('down')"></div>
-            <div class="joy-zone joy-left"  onpointerdown="joyPress('left')"  onpointerup="joyRelease('left')"  onpointercancel="joyRelease('left')"></div>
-            <div class="joy-zone joy-right" onpointerdown="joyPress('right')" onpointerup="joyRelease('right')" onpointercancel="joyRelease('right')"></div>
+            <div class="joy-drag-zone" id="joy-drag-zone"></div>
             <!-- Red ball -->
             <div class="joy-ball" id="joy-ball"></div>
           </div>
@@ -620,6 +596,10 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
 
   </div><!-- /cabinet-body -->
 
+  <!-- BACK LINK -->
+  <div style="text-align:center;padding:6px 0 2px;">
+    <a href="/arcade" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:0.15em;text-transform:uppercase;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#FF2D78'" onmouseout="this.style.color='rgba(255,255,255,0.2)'">&#8592; Back to Arcade</a>
+  </div>
   <!-- BASE + FEET -->
   <div class="cabinet-base"></div>
   <div class="cabinet-feet">
@@ -629,46 +609,9 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
 
 </div><!-- /cabinet-wrap -->
 
-<!-- BELOW CABINET -->
-<div class="below-cabinet">
-  <div class="share-row">
-    <button class="share-btn" onclick="shareGame()">&#128241; Share</button>
-    <button class="share-btn" onclick="copyLink()">&#128279; Copy Link</button>
-    <a href="/arcade" class="share-btn">&#9664; Arcade</a>
-  </div>
 
-  <div class="info-tabs">
-    <button class="info-tab active" onclick="showTab('how',this)">How to Play</button>
-    <button class="info-tab" onclick="showTab('about',this)">About</button>
-  </div>
-  <div class="info-panel active" id="tab-how">
-    <div class="how-grid">
-      <div class="how-item"><div class="hi-icon">&#127918;</div><div class="hi-text"><strong>Move</strong>Red joystick or arrow keys</div></div>
-      <div class="how-item"><div class="hi-icon">&#9679;</div><div class="hi-text"><strong>Eat Dots</strong>Clear maze to advance</div></div>
-      <div class="how-item"><div class="hi-icon">&#9762;</div><div class="hi-text"><strong>Power Up</strong>Big dots — eat the ghosts</div></div>
-      <div class="how-item"><div class="hi-icon">&#9654;</div><div class="hi-text"><strong>Start</strong>Yellow button or press N</div></div>
-    </div>
-  </div>
-  <div class="info-panel" id="tab-about">
-    <p class="about-text">Classic HTML5 Pac-Man built by Dale Harvey. Runs entirely in your browser — no plugins, no downloads.</p>
-    <div class="credit-row">Original by <a href="https://github.com/daleharvey/pacman" target="_blank">Dale Harvey</a> &nbsp;&middot;&nbsp; WTFPL License &nbsp;&middot;&nbsp; Hosted on <a href="/">Neon Spawn Point</a></div>
-  </div>
 
-  <div class="related-label">&#9608; More Games</div>
-  <div class="related-title">Keep <span>Playing</span></div>
-  <div class="related-grid">
-    <a href="/arcade" class="related-card"><div class="related-icon">&#128640;</div><div class="related-name">Asteroids</div><div class="related-genre">Arcade</div><div class="badge-coming">Soon</div></a>
-    <a href="/arcade" class="related-card"><div class="related-icon">&#128013;</div><div class="related-name">Snake</div><div class="related-genre">Arcade</div><div class="badge-coming">Soon</div></a>
-    <a href="/arcade" class="related-card"><div class="related-icon">&#127999;</div><div class="related-name">Breakout</div><div class="related-genre">Arcade</div><div class="badge-coming">Soon</div></a>
-  </div>
-</div>
-</div><!-- /page-bg -->
 
-<footer>
-  <div class="footer-logo"><span class="fl-neon">NEON</span><span class="fl-spawn">SPAWN</span>POINT</div>
-  <p class="disclosure">Pac-Man hosted under WTFPL license. Original by Dale Harvey. Not affiliated with Namco/Bandai.</p>
-  <p><span id="nsp-copyright">&copy; 2026 Neon Spawn Point &middot; Forged Oak Studios &middot;</span> <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a></p>
-</footer>
 
 <script src="/games/modernizr-1.5.min.js"></script>
 <script src="/games/pacman.js"></script>
@@ -705,42 +648,83 @@ if (document.fonts) {
   window.setTimeout(initPacman, 400);
 }
 
-// ── JOYSTICK ──────────────────────────────────────────────────
-var TRAVEL = 22;
-var ball   = document.getElementById('joy-ball');
-var OFFSETS = {up:[0,-TRAVEL],down:[0,TRAVEL],left:[-TRAVEL,0],right:[TRAVEL,0]};
+// ── JOYSTICK DRAG ─────────────────────────────────────────────
+var TRAVEL    = 24;
+var ball      = document.getElementById('joy-ball');
+var dragZone  = document.getElementById('joy-drag-zone');
 var KEY_CODES = {up:38,down:40,left:37,right:39};
 var KEY_NAMES = {up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'};
+var curDir    = null;
+var dragStart = null;
+var DEADZONE  = 12;
 
 function moveBall(x, y) {
   if (ball) ball.style.transform = 'translate(calc(-50% + '+x+'px),calc(-50% + '+y+'px))';
 }
-
 function lightDir(dir, on) {
   var el = document.getElementById('jd-' + dir);
   if (el) { if(on) el.classList.add('lit'); else el.classList.remove('lit'); }
 }
-
 function fireKey(type, dir) {
-  var evt = new KeyboardEvent(type, {
+  document.dispatchEvent(new KeyboardEvent(type, {
     key:KEY_NAMES[dir], code:KEY_NAMES[dir],
     keyCode:KEY_CODES[dir], which:KEY_CODES[dir],
     bubbles:true, cancelable:true
-  });
-  document.dispatchEvent(evt);
+  }));
+}
+function setDir(newDir) {
+  if (newDir === curDir) return;
+  if (curDir) { lightDir(curDir, false); fireKey('keyup', curDir); }
+  curDir = newDir;
+  if (curDir) {
+    var OFFSETS = {up:[0,-TRAVEL],down:[0,TRAVEL],left:[-TRAVEL,0],right:[TRAVEL,0]};
+    var o = OFFSETS[curDir];
+    moveBall(o[0], o[1]);
+    lightDir(curDir, true);
+    fireKey('keydown', curDir);
+  } else {
+    moveBall(0, 0);
+  }
+}
+function getDirFromDelta(dx, dy) {
+  var dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist < DEADZONE) return null;
+  return Math.abs(dx) > Math.abs(dy)
+    ? (dx > 0 ? 'right' : 'left')
+    : (dy > 0 ? 'down'  : 'up');
 }
 
-function joyPress(dir) {
-  var o = OFFSETS[dir];
-  moveBall(o[0], o[1]);
-  lightDir(dir, true);
-  fireKey('keydown', dir);
+if (dragZone) {
+  dragZone.addEventListener('pointerdown', function(e) {
+    e.preventDefault();
+    dragZone.setPointerCapture(e.pointerId);
+    dragStart = {x: e.clientX, y: e.clientY};
+    curDir = null;
+  }, {passive:false});
+
+  dragZone.addEventListener('pointermove', function(e) {
+    e.preventDefault();
+    if (!dragStart) return;
+    var dx = e.clientX - dragStart.x;
+    var dy = e.clientY - dragStart.y;
+    setDir(getDirFromDelta(dx, dy));
+  }, {passive:false});
+
+  dragZone.addEventListener('pointerup', function(e) {
+    e.preventDefault();
+    setDir(null);
+    dragStart = null;
+  }, {passive:false});
+
+  dragZone.addEventListener('pointercancel', function(e) {
+    setDir(null);
+    dragStart = null;
+  }, {passive:false});
 }
-function joyRelease(dir) {
-  moveBall(0, 0);
-  lightDir(dir, false);
-  fireKey('keyup', dir);
-}
+
+// Legacy tap support for joyPress/joyRelease (kept for compat)
+function joyPress(dir)   { setDir(dir); }
+function joyRelease(dir) { setDir(null); }
 
 // ── ACTION BUTTONS ────────────────────────────────────────────
 function actionPress(action) {
