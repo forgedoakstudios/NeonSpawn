@@ -719,11 +719,15 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
     <!-- COIN DOOR -->
     <div class="cabinet-coin">
       <div class="coin-slot"></div>
-      <div class="cabinet-score">
+      <div class="cabinet-score" style="cursor:pointer;" onclick="openLB(lastScore, lastScore > 0)">
         <div>HIGH SCORE</div>
         <div id="hi-score">000000</div>
       </div>
       <div class="coin-slot"></div>
+    </div>
+    <!-- LEADERBOARD BUTTON -->
+    <div style="text-align:center;padding:6px 12px 0;background:#111;">
+      <button onclick="openLB(lastScore, lastScore > 0)" style="width:100%;background:linear-gradient(180deg,#1A1A00,#0A0A00);border:1px solid rgba(255,230,0,0.4);color:var(--yellow);font-family:'Share Tech Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;padding:8px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='rgba(255,230,0,0.4)'">&#9733; Leaderboard &nbsp;&middot;&nbsp; Submit Score &#9733;</button>
     </div>
 
     <!-- CONTROL PANEL -->
@@ -1162,12 +1166,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Manual trigger — player taps HIGH SCORE or we detect game over
 // Since Pac-Man canvas is opaque, player can tap HIGH SCORE to submit
 // after a game ends
-var coinArea = document.querySelector('.cabinet-coin');
-if (coinArea) {
-  coinArea.addEventListener('click', function() {
-    openLB(lastScore, lastScore > 0);
-  });
-}
+// Leaderboard opens via button click above
 
 // ── DEBUG ─────────────────────────────────────────────────────
 (function(){
