@@ -516,6 +516,168 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
   transform-origin: center top;
 }
 
+
+/* ── LEADERBOARD OVERLAY ── */
+.lb-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  z-index:200;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.lb-overlay.show{display:flex;}
+.lb-box{
+  background:#0A0A14;
+  border:3px solid var(--yellow);
+  box-shadow:0 0 40px rgba(255,230,0,0.4),0 0 80px rgba(255,230,0,0.15);
+  width:min(360px,92vw);
+  padding:0;
+  font-family:'Share Tech Mono',monospace;
+  position:relative;
+}
+.lb-header{
+  background:linear-gradient(180deg,#1A1A00,#0A0A00);
+  border-bottom:2px solid var(--yellow);
+  padding:14px 20px;
+  text-align:center;
+}
+.lb-title{
+  font-family:'Bungee',sans-serif;
+  font-size:22px;
+  color:var(--yellow);
+  text-shadow:0 0 20px rgba(255,230,0,0.8);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  margin-bottom:2px;
+}
+.lb-subtitle{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.2em;text-transform:uppercase;}
+.lb-body{padding:16px 20px;}
+
+/* Initials entry */
+.initials-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:16px;
+  padding:14px;
+  background:rgba(255,230,0,0.05);
+  border:1px solid rgba(255,230,0,0.2);
+}
+.initials-label{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px;text-align:center;}
+.initials-row{display:flex;justify-content:center;gap:12px;margin-bottom:14px;padding:14px;background:rgba(255,230,0,0.04);border:1px solid rgba(255,230,0,0.15);}
+.initial-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.initial-arrow{
+  font-size:16px;color:rgba(255,230,0,0.4);
+  cursor:pointer;
+  padding:4px 8px;
+  transition:color 0.15s, text-shadow 0.15s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.initial-arrow:hover,.initial-arrow:active{color:var(--yellow);text-shadow:0 0 8px var(--yellow);}
+.initial-display{
+  width:48px;height:58px;
+  background:#000;
+  border:2px solid rgba(255,230,0,0.3);
+  color:rgba(255,255,255,0.3);
+  font-family:'Bungee',sans-serif;
+  font-size:30px;
+  display:flex;align-items:center;justify-content:center;
+  letter-spacing:0.05em;
+  transition:all 0.15s;
+}
+.initial-display.active-col{
+  border-color:var(--yellow);
+  color:var(--yellow);
+  box-shadow:0 0 16px rgba(255,230,0,0.5);
+}
+.lb-score-display{
+  text-align:center;
+  margin-bottom:14px;
+}
+.lb-score-label{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.2em;margin-bottom:4px;}
+.lb-score-val{font-size:28px;color:#fff;letter-spacing:0.1em;}
+.lb-submit-btn{
+  width:100%;
+  background:var(--yellow);
+  color:#000;
+  font-family:'Bungee',sans-serif;
+  font-size:15px;
+  text-transform:uppercase;
+  padding:13px;
+  border:none;
+  cursor:pointer;
+  letter-spacing:0.08em;
+  transition:all 0.2s;
+  margin-bottom:14px;
+}
+.lb-submit-btn:hover{box-shadow:0 0 20px rgba(255,230,0,0.6);}
+.lb-submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* Top 10 table */
+.lb-table{width:100%;}
+.lb-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 6px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.lb-row.lb-you{background:rgba(255,230,0,0.08);border-color:rgba(255,230,0,0.2);}
+.lb-rank{
+  font-size:12px;
+  color:rgba(255,255,255,0.3);
+  width:24px;
+  text-align:center;
+  flex-shrink:0;
+}
+.lb-row:nth-child(1) .lb-rank{color:var(--yellow);font-size:14px;}
+.lb-row:nth-child(2) .lb-rank{color:#C0C0C0;}
+.lb-row:nth-child(3) .lb-rank{color:#CD7F32;}
+.lb-initials{
+  font-family:'Bungee',sans-serif;
+  font-size:18px;
+  color:#fff;
+  letter-spacing:0.1em;
+  flex:1;
+}
+.lb-score-entry{
+  font-size:13px;
+  color:var(--cyan);
+  letter-spacing:0.06em;
+}
+.lb-date{font-size:9px;color:rgba(255,255,255,0.2);margin-left:4px;}
+.lb-empty{text-align:center;padding:20px;font-size:12px;color:rgba(255,255,255,0.3);}
+.lb-close{
+  position:absolute;
+  top:10px;right:12px;
+  background:none;border:none;
+  color:rgba(255,255,255,0.3);
+  font-size:18px;cursor:pointer;
+  transition:color 0.2s;
+  font-family:monospace;
+}
+.lb-close:hover{color:var(--yellow);}
+.lb-msg{font-size:11px;color:var(--cyan);text-align:center;padding:6px 0;letter-spacing:0.08em;}
+.lb-view-btn{
+  width:100%;
+  background:transparent;
+  color:rgba(255,255,255,0.3);
+  border:1px solid rgba(255,255,255,0.1);
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  padding:10px;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-top:8px;
+}
+.lb-view-btn:hover{color:var(--cyan);border-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -689,6 +851,21 @@ function fireKey(type, dir) {
   }));
 }
 function setDir(newDir) {
+  // If initials entry is active, route joystick to initials navigation
+  if (initEntry && newDir) {
+    if (newDir === 'up')    initNavUp();
+    if (newDir === 'down')  initNavDown();
+    if (newDir === 'left')  initNavLeft();
+    if (newDir === 'right') initNavRight();
+    // Still animate ball
+    var OFFSETS = {up:[0,-TRAVEL],down:[0,TRAVEL],left:[-TRAVEL,0],right:[TRAVEL,0]};
+    var o = OFFSETS[newDir];
+    moveBall(o[0], o[1]);
+    lightDir(newDir, true);
+    curDir = newDir;
+    return;
+  }
+  if (initEntry && !newDir) { moveBall(0,0); lightDir(curDir,false); curDir=null; return; }
   if (newDir === curDir) return;
   if (curDir) { lightDir(curDir, false); fireKey('keyup', curDir); }
   curDir = newDir;
@@ -754,6 +931,11 @@ function leanIn() {
 function actionPress(action) {
   var btn = document.getElementById('btn-' + action);
   if (btn) btn.classList.add('pressed');
+  // If initials entry active, START = submit
+  if (initEntry && action === 'start') {
+    submitScore();
+    return;
+  }
   var key = action === 'start' ? 'n' : 'p';
   var kc  = action === 'start' ? 78 : 80;
   if (action === 'start') leanIn();
@@ -802,6 +984,191 @@ function showTab(id, btn) {
   btn.classList.add('active');
 }
 
+
+// ── LEADERBOARD ───────────────────────────────────────────────
+var WORKER = 'https://neonspawn-scores.forgedoakstudios.workers.dev';
+var pendingScore = 0;
+var currentScores = [];
+
+function openLB(score, qualifying) {
+  pendingScore = score || 0;
+  document.getElementById('lb-overlay').classList.add('show');
+  if (qualifying && score > 0) {
+    initEntry = true;
+    initPos   = [0, 0, 0];
+    initCol   = 0;
+    initRender();
+    document.getElementById('lb-enter-section').style.display = 'block';
+    document.getElementById('lb-your-score').textContent = score;
+    document.getElementById('lb-submit-msg').textContent = '';
+    document.getElementById('lb-submit-btn').disabled = false;
+  } else {
+    initEntry = false;
+    document.getElementById('lb-enter-section').style.display = 'none';
+  }
+  loadScores();
+}
+
+function closeLB() {
+  initEntry = false;
+  document.getElementById('lb-overlay').classList.remove('show');
+}
+
+function loadScores() {
+  fetch(WORKER + '/scores')
+    .then(function(r) { return r.json(); })
+    .then(function(scores) {
+      currentScores = scores;
+      renderScores(scores);
+    })
+    .catch(function() {
+      document.getElementById('lb-table').innerHTML = '<div class="lb-empty">Could not load scores.</div>';
+    });
+}
+
+function renderScores(scores) {
+  var table = document.getElementById('lb-table');
+  if (!scores || !scores.length) {
+    table.innerHTML = '<div class="lb-empty">No scores yet. Be the first!</div>';
+    return;
+  }
+  var medals = ['&#127947;','&#129352;','&#129353;'];
+  table.innerHTML = '';
+  scores.forEach(function(s, i) {
+    var row = document.createElement('div');
+    row.className = 'lb-row';
+    var rankStr = i < 3 ? medals[i] : (i + 1);
+    row.innerHTML =
+      '<div class="lb-rank">' + rankStr + '</div>' +
+      '<div class="lb-initials">' + s.initials + '</div>' +
+      '<div class="lb-score-entry">' + s.score.toLocaleString() + '</div>' +
+      '<div class="lb-date">' + (s.date || '') + '</div>';
+    table.appendChild(row);
+  });
+}
+
+// ── INITIALS JOYSTICK NAVIGATION ─────────────────────────────
+var INIT_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+var initPos    = [0, 0, 0];  // index into INIT_CHARS for each column
+var initCol    = 0;           // active column 0-2
+var initEntry  = false;       // true when initials screen is showing
+
+function initRender() {
+  for (var i = 0; i < 3; i++) {
+    var el = document.getElementById('ichar-' + i);
+    if (el) {
+      el.textContent = INIT_CHARS[initPos[i]];
+      if (i === initCol) el.classList.add('active-col');
+      else el.classList.remove('active-col');
+    }
+  }
+}
+
+function initMove(col, dir) {
+  initCol = col;
+  initPos[col] = (initPos[col] + dir + INIT_CHARS.length) % INIT_CHARS.length;
+  initRender();
+}
+
+function initNavUp()    { initPos[initCol] = (initPos[initCol] - 1 + INIT_CHARS.length) % INIT_CHARS.length; initRender(); }
+function initNavDown()  { initPos[initCol] = (initPos[initCol] + 1) % INIT_CHARS.length; initRender(); }
+function initNavLeft()  { initCol = (initCol - 1 + 3) % 3; initRender(); }
+function initNavRight() { initCol = (initCol + 1) % 3; initRender(); }
+
+function submitScore() {
+  var initials = INIT_CHARS[initPos[0]] + INIT_CHARS[initPos[1]] + INIT_CHARS[initPos[2]];
+  var btn = document.getElementById('lb-submit-btn');
+  var msg = document.getElementById('lb-submit-msg');
+
+  if (initials.length < 3) {
+    msg.textContent = 'Enter 3 initials';
+    msg.style.color = '#FF2D78';
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = 'Submitting...';
+  msg.style.color = 'var(--cyan)';
+
+  fetch(WORKER + '/scores', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({initials: initials, score: pendingScore, game: 'pacman'})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.ok) {
+      initEntry = false; msg.textContent = 'Saved! Rank #' + d.rank;
+      msg.style.color = 'var(--yellow)';
+      document.getElementById('lb-enter-section').style.display = 'none';
+      renderScores(d.scores);
+    } else {
+      msg.textContent = 'Error saving. Try again.';
+      msg.style.color = '#FF2D78';
+      btn.disabled = false;
+    }
+  })
+  .catch(function() {
+    msg.textContent = 'Network error.';
+    msg.style.color = '#FF2D78';
+    btn.disabled = false;
+  });
+}
+
+// ── SCORE DETECTION ───────────────────────────────────────────
+// Poll the game score from Pac-Man's DOM every 2 seconds
+var lastScore = 0;
+var gameOver  = false;
+var scoreCheckInterval = null;
+
+function startScoreWatch() {
+  if (scoreCheckInterval) return;
+  scoreCheckInterval = setInterval(function() {
+    // Pac-Man renders score in the canvas — read from DOM text if available
+    var pacDiv = document.getElementById('pacman');
+    if (!pacDiv) return;
+
+    // Try to find score text inside pacman div
+    var scoreEl = pacDiv.querySelector && pacDiv.querySelector('[class*="score"]');
+    if (scoreEl) {
+      var val = parseInt(scoreEl.textContent.replace(/[^0-9]/g,''));
+      if (!isNaN(val) && val > lastScore) lastScore = val;
+    }
+  }, 2000);
+}
+
+// Leaderboard button on cabinet coin area
+document.addEventListener('DOMContentLoaded', function() {
+  var hiScoreEl = document.getElementById('hi-score');
+  if (hiScoreEl) {
+    hiScoreEl.style.cursor = 'pointer';
+    hiScoreEl.title = 'View Leaderboard';
+    hiScoreEl.addEventListener('click', function() {
+      openLB(0, false);
+    });
+  }
+  startScoreWatch();
+  // Load scores into hi-score display
+  fetch(WORKER + '/scores')
+    .then(function(r) { return r.json(); })
+    .then(function(scores) {
+      if (scores && scores.length && hiScoreEl) {
+        var top = scores[0].score;
+        hiScoreEl.textContent = String(top).padStart(6,'0');
+      }
+    }).catch(function(){});
+});
+
+// Manual trigger — player taps HIGH SCORE or we detect game over
+// Since Pac-Man canvas is opaque, player can tap HIGH SCORE to submit
+// after a game ends
+var coinArea = document.querySelector('.cabinet-coin');
+if (coinArea) {
+  coinArea.addEventListener('click', function() {
+    openLB(lastScore, lastScore > 0);
+  });
+}
+
 // ── DEBUG ─────────────────────────────────────────────────────
 (function(){
   var timer=null, active=localStorage.getItem('nsp-debug')==='1';
@@ -826,5 +1193,51 @@ function showTab(id, btn) {
 })();
 
 </script>
+
+<!-- LEADERBOARD OVERLAY -->
+<div class="lb-overlay" id="lb-overlay">
+  <div class="lb-box">
+    <button class="lb-close" onclick="closeLB()">&#10005;</button>
+    <div class="lb-header">
+      <div class="lb-title">&#9733; High Scores &#9733;</div>
+      <div class="lb-subtitle">Pac-Man &middot; Global Top 10</div>
+    </div>
+    <div class="lb-body">
+
+      <!-- Initials entry (shown when qualifying) -->
+      <div id="lb-enter-section" style="display:none;">
+        <div class="lb-score-display">
+          <div class="lb-score-label">Your Score</div>
+          <div class="lb-score-val" id="lb-your-score">0</div>
+        </div>
+        <div class="initials-label">&#9650; &#9660; Select &nbsp;&nbsp; &#9664; &#9654; Move &nbsp;&nbsp; START Confirm</div>
+        <div class="initials-row" id="initials-row">
+          <div class="initial-col" id="icol-0">
+            <div class="initial-arrow initial-arrow-up" onclick="initMove(0,-1)">&#9650;</div>
+            <div class="initial-display active-col" id="ichar-0">A</div>
+            <div class="initial-arrow initial-arrow-down" onclick="initMove(0,1)">&#9660;</div>
+          </div>
+          <div class="initial-col" id="icol-1">
+            <div class="initial-arrow initial-arrow-up" onclick="initMove(1,-1)">&#9650;</div>
+            <div class="initial-display" id="ichar-1">A</div>
+            <div class="initial-arrow initial-arrow-down" onclick="initMove(1,1)">&#9660;</div>
+          </div>
+          <div class="initial-col" id="icol-2">
+            <div class="initial-arrow initial-arrow-up" onclick="initMove(2,-1)">&#9650;</div>
+            <div class="initial-display" id="ichar-2">A</div>
+            <div class="initial-arrow initial-arrow-down" onclick="initMove(2,1)">&#9660;</div>
+          </div>
+        </div>
+        <button class="lb-submit-btn" id="lb-submit-btn" onclick="submitScore()">&#9654; Submit</button>
+        <div class="lb-msg" id="lb-submit-msg"></div>
+      </div>
+
+      <!-- Top 10 table -->
+      <div class="lb-table" id="lb-table"></div>
+      <button class="lb-view-btn" onclick="closeLB()">&#9654; Back to Game</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
