@@ -510,15 +510,12 @@ footer a{color:var(--muted);}footer a:hover{color:var(--pink);}
   0%   { transform: scale(1.18); }
   100% { transform: scale(1);    }
 }
-.cabinet-bezel.leaning {
-  animation: lean-in 3.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  transform-origin: center center;
-  z-index: 10;
+.cabinet-bezel.leaning,
+.cabinet-wrap.leaning {
+  animation: lean-in 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  transform-origin: center top;
 }
-.cabinet-bezel.leaning-out {
-  animation: lean-out 0.6s ease-out forwards;
-  transform-origin: center center;
-}
+
 </style>
 </head>
 <body>
@@ -747,20 +744,11 @@ function joyRelease(dir) { setDir(null); }
 
 // ── ACTION BUTTONS ────────────────────────────────────────────
 function leanIn() {
-  var bezel = document.getElementById('cabinet-bezel');
-  if (!bezel) return;
-  bezel.classList.remove('leaning-out');
-  bezel.classList.remove('leaning');
-  void bezel.offsetWidth; // force reflow
-  bezel.classList.add('leaning');
-  // After countdown (~3.8s) snap back slightly
-  setTimeout(function() {
-    bezel.classList.remove('leaning');
-    bezel.classList.add('leaning-out');
-    setTimeout(function() {
-      bezel.classList.remove('leaning-out');
-    }, 600);
-  }, 3800);
+  var wrap = document.querySelector('.cabinet-wrap');
+  if (!wrap) return;
+  wrap.classList.remove('leaning');
+  void wrap.offsetWidth; // force reflow
+  wrap.classList.add('leaning');
 }
 
 function actionPress(action) {
