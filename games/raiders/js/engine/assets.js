@@ -165,18 +165,62 @@ const PLACEHOLDERS = {
     ctx.stroke();
     return c;
   },
+  shopkeeper(size) {
+    const c = canvas(size, size);
+    const ctx = c.getContext('2d');
+    const cx = size / 2, cy = size / 2;
+    glow(ctx, COLORS.yellow, 8, () => {
+      ctx.fillStyle = COLORS.yellow;
+      ctx.beginPath();
+      ctx.arc(cx, cy - size * 0.14, size * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx - size * 0.26, cy + size * 0.36);
+      ctx.lineTo(cx + size * 0.26, cy + size * 0.36);
+      ctx.closePath();
+      ctx.fill();
+    });
+    ctx.strokeStyle = COLORS.purple;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - size * 0.2, cy + size * 0.1);
+    ctx.lineTo(cx + size * 0.2, cy + size * 0.1);
+    ctx.stroke();
+    return c;
+  },
+  spell_bolt(size) {
+    const c = canvas(size, size);
+    const ctx = c.getContext('2d');
+    const cx = size / 2, cy = size / 2;
+    glow(ctx, COLORS.purple, 14, () => {
+      ctx.fillStyle = COLORS.purple;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.16, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    glow(ctx, COLORS.cyan, 10, () => {
+      ctx.fillStyle = COLORS.cyan;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    return c;
+  },
 };
 
 const MANIFEST = {
   player:        { src: 'sprites/player.png',       size: TILE_SIZE },
   enemy_grunt:   { src: 'sprites/enemy_grunt.png',   size: TILE_SIZE },
   enemy_brute:   { src: 'sprites/enemy_brute.png',   size: TILE_SIZE },
+  shopkeeper:    { src: 'sprites/shopkeeper.png',    size: TILE_SIZE },
   tile_floor:    { src: 'tiles/floor.png',           size: TILE_SIZE },
   tile_wall:     { src: 'tiles/wall.png',            size: TILE_SIZE },
   chest_closed:  { src: 'ui/chest_closed.png',       size: TILE_SIZE },
   chest_open:    { src: 'ui/chest_open.png',         size: TILE_SIZE },
   exit_portal:   { src: 'ui/exit_portal.png',        size: TILE_SIZE },
   loot_gem:      { src: 'ui/loot_gem.png',           size: TILE_SIZE },
+  spell_bolt:    { src: 'ui/spell_bolt.png',         size: TILE_SIZE },
 };
 
 export class AssetLoader {

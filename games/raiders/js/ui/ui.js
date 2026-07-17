@@ -13,6 +13,12 @@ export class UI {
     this.hudLevel = document.getElementById('hud-level');
     this.hudStem = document.getElementById('hud-stem');
     this.hudLoot = document.getElementById('hud-loot');
+    this.hudSpell = document.getElementById('hud-spell');
+
+    this.shopModal = document.getElementById('shop-modal');
+    this.shopLoot = document.getElementById('shop-loot');
+    this.shopItems = document.getElementById('shop-items');
+    this.shopCloseBtn = document.getElementById('shop-close-btn');
 
     this.quizModal = document.getElementById('quiz-modal');
     this.quizCategory = document.getElementById('quiz-category');
@@ -84,6 +90,37 @@ export class UI {
     this.hudLevel.textContent = `LEVEL ${levelIndex + 1} / ${totalLevels}`;
     this.hudStem.textContent = stemTotal > 0 ? `STEM ${stemCorrect}/${stemTotal}` : '';
     this.hudLoot.textContent = `◆ LOOT: ${loot}`;
+  }
+
+  updateSpellHud(cooldown) {
+    this.hudSpell.textContent = cooldown > 0 ? `✦ SPELL: ${cooldown.toFixed(1)}s` : '✦ SPELL: READY';
+    this.hudSpell.className = 'hud-spell' + (cooldown > 0 ? '' : ' ready');
+  }
+
+  showShop(loot, items, onBuy, onClose) {
+    this.shopModal.classList.remove('hidden');
+    this.shopLoot.textContent = `Your Loot: ◆ ${loot}`;
+    this.shopItems.innerHTML = '';
+    items.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'shop-item';
+      const info = document.createElement('div');
+      info.className = 'shop-item-info';
+      info.innerHTML = `<div class="shop-item-name">${item.name}</div><div class="shop-item-desc">${item.desc}</div>`;
+      const btn = document.createElement('button');
+      btn.className = 'shop-buy-btn';
+      btn.textContent = `◆ ${item.cost}`;
+      btn.disabled = loot < item.cost;
+      btn.onclick = () => onBuy(item.id);
+      row.appendChild(info);
+      row.appendChild(btn);
+      this.shopItems.appendChild(row);
+    });
+    this.shopCloseBtn.onclick = onClose;
+  }
+
+  hideShop() {
+    this.shopModal.classList.add('hidden');
   }
 
   /**

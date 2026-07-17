@@ -95,7 +95,11 @@ export function generateDungeon(levelIndex) {
   const exitX = Math.min(farthest.x + farthest.w - 1, farthest.centerX + 1);
   map.set(exitX, farthest.centerY, TILE.EXIT);
 
-  const enemyRooms = rooms.filter((r) => r !== startRoom && r !== farthest);
+  const candidateRooms = rooms.filter((r) => r !== startRoom && r !== farthest);
+  const shopRoom = candidateRooms.length > 0 ? candidateRooms[randInt(0, candidateRooms.length - 1)] : null;
+  const shopPos = shopRoom ? { x: shopRoom.centerX, y: shopRoom.centerY } : null;
+
+  const enemyRooms = candidateRooms.filter((r) => r !== shopRoom);
   const enemyCount = Math.min(3 + levelIndex * 2, enemyRooms.length * 2);
   const enemySpawns = [];
   for (let i = 0; i < enemyCount; i++) {
@@ -127,5 +131,6 @@ export function generateDungeon(levelIndex) {
     exitPos: { x: exitX, y: farthest.centerY },
     enemySpawns,
     lootSpawns,
+    shopPos,
   };
 }

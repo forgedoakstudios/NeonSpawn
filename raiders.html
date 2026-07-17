@@ -39,9 +39,9 @@ a{color:inherit;text-decoration:none;}
 .stage-wrap{display:flex;justify-content:center;padding:20px 12px 8px;}
 .game-frame{
   position:relative;
-  width:800px;
+  width:1200px;
   max-width:100%;
-  aspect-ratio:800/576;
+  aspect-ratio:1200/864;
   background:#000;
   border:2px solid var(--edge);
   box-shadow:0 0 0 1px rgba(0,255,209,0.08), 0 12px 48px rgba(255,45,120,0.12);
@@ -101,6 +101,23 @@ a{color:inherit;text-decoration:none;}
 .hud-level{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:0.08em;}
 .hud-loot{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);letter-spacing:0.08em;}
 .hud-stem{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);letter-spacing:0.08em;}
+.hud-spell{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.08em;}
+.hud-spell.ready{color:var(--purple);text-shadow:0 0 6px var(--purple);}
+
+/* SHOP MODAL */
+.shop-panel{max-width:440px;width:100%;background:var(--panel);border:1px solid var(--yellow);border-radius:10px;padding:24px;box-shadow:0 0 30px rgba(255,230,0,0.2);}
+.shop-panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.shop-title{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--yellow);letter-spacing:0.15em;text-transform:uppercase;}
+.shop-loot{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text);}
+.shop-items{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.shop-item{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--dark);border:1px solid var(--edge);border-radius:6px;padding:10px 14px;}
+.shop-item-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;}
+.shop-item-desc{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.shop-buy-btn{
+  font-family:'Bungee',sans-serif;font-size:12px;color:var(--dark);background:var(--yellow);border:none;border-radius:6px;
+  padding:8px 14px;cursor:pointer;flex-shrink:0;box-shadow:0 0 10px rgba(255,230,0,0.35);
+}
+.shop-buy-btn:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none;}
 
 /* QUIZ MODAL */
 .modal-overlay{background:rgba(6,6,15,0.88);backdrop-filter:blur(2px);}
@@ -151,7 +168,7 @@ a{color:inherit;text-decoration:none;}
 
 <div class="stage-wrap">
   <div class="game-frame">
-    <canvas id="game-canvas" width="800" height="576"></canvas>
+    <canvas id="game-canvas" width="1200" height="864"></canvas>
 
     <div id="dm-screen" class="overlay">
       <div class="dm-actions">
@@ -171,8 +188,8 @@ a{color:inherit;text-decoration:none;}
         </div>
         <button id="start-btn" class="start-btn" disabled>Start Descent</button>
         <div class="controls-hint">
-          ARROW KEYS / WASD &mdash; MOVE &nbsp;&middot;&nbsp; WALK INTO ENEMIES &mdash; ATTACK<br>
-          FIND THE CHEST &middot; ANSWER THE STEM QUESTION &middot; REACH THE PORTAL
+          ARROW KEYS / WASD &mdash; MOVE &nbsp;&middot;&nbsp; WALK INTO ENEMIES &mdash; ATTACK &nbsp;&middot;&nbsp; SPACE &mdash; CAST SPELL<br>
+          FIND THE CHEST &middot; ANSWER THE STEM QUESTION &middot; REACH THE PORTAL &middot; VISIT THE SHOPKEEPER TO SPEND LOOT
         </div>
       </div>
     </div>
@@ -182,7 +199,19 @@ a{color:inherit;text-decoration:none;}
         <div id="hud-hearts" class="hud-hearts"></div>
         <div id="hud-level" class="hud-level"></div>
         <div id="hud-loot" class="hud-loot"></div>
+        <div id="hud-spell" class="hud-spell"></div>
         <div id="hud-stem" class="hud-stem"></div>
+      </div>
+    </div>
+
+    <div id="shop-modal" class="overlay modal-overlay hidden">
+      <div class="shop-panel">
+        <div class="shop-panel-top">
+          <div class="shop-title">&#9608; Shopkeeper</div>
+          <div id="shop-loot" class="shop-loot"></div>
+        </div>
+        <div id="shop-items" class="shop-items"></div>
+        <button id="shop-close-btn" class="start-btn btn-town">Leave Shop</button>
       </div>
     </div>
 

@@ -8,6 +8,7 @@ export class Player extends Entity {
     this.attack = 1;
     this.attackCooldown = 0;
     this.moveCooldown = 0;
+    this.spellCooldown = 0;
   }
 
   takeDamage(amount) {

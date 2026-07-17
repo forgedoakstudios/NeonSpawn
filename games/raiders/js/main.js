@@ -1,4 +1,4 @@
-import { TILE, TILE_SIZE, TOTAL_LEVELS, MAX_QUIZ_TRIES, COLORS } from './config.js';
+import { TILE, TILE_SIZE, TOTAL_LEVELS, MAX_QUIZ_TRIES, SPELL_COOLDOWN, SPELL_DAMAGE, SPELL_RANGE, SHOP_ITEMS, COLORS } from './config.js';
 import { GameLoop } from './engine/loop.js';
 import { Input } from './engine/input.js';
 import { Renderer } from './engine/renderer.js';
@@ -34,6 +34,7 @@ class Game {
     this.chestOpened = false;
     this.quiz = null;
     this.lootPickups = [];
+    this.shopPos = null;
 
     this.currentQuestion = null;
     this.quizDisabled = new Set();
@@ -86,6 +87,7 @@ class Game {
 
     this.enemies = level.enemySpawns.map((s) => new Enemy(s.x, s.y, s.type));
     this.lootPickups = level.lootSpawns.map((p) => ({ x: p.x, y: p.y, collected: false }));
+    this.shopPos = level.shopPos;
     this.fov = new FogOfWar(7);
     this.fov.update(this.tileMap, this.player.gridX, this.player.gridY);
     this.particles = new ParticleSystem();
@@ -126,8 +128,73 @@ class Game {
     if (!this.canWalk(nx, ny)) return;
 
     const wasChest = this.tileMap.get(nx, ny) === TILE.CHEST && !this.chestOpened;
+    const enteringShop = this.shopPos && nx === this.shopPos.x && ny === this.shopPos.y;
     player.startMoveTo(nx, ny);
     if (wasChest) this.triggerQuiz();
+    else if (enteringShop) this.openShop();
+  }
+
+  handlePlayerSpell(dt, spellKeyPressed) {
+    const player = this.player;
+    if (player.spellCooldown > 0) player.spellCooldown = Math.max(0, player.spellCooldown - dt);
+    if (!spellKeyPressed || player.spellCooldown > 0) return;
+    player.spellCooldown = SPELL_COOLDOWN;
+
+    let target = null;
+    let bestDist = Infinity;
+    for (const e of this.enemies) {
+      if (!e.alive) continue;
+      if (this.fov.stateAt(e.gridX, e.gridY) !== 'visible') continue;
+      const d = Math.hypot(e.gridX - player.gridX, e.gridY - player.gridY);
+      if (d <= SPELL_RANGE && d < bestDist) { bestDist = d; target = e; }
+    }
+
+    const start = player.centerPx;
+    if (target) {
+      const end = target.centerPx;
+      for (let i = 1; i <= 4; i++) {
+        const t = i / 5;
+        this.particles.burst(
+          start.x + (end.x - start.x) * t,
+          start.y + (end.y - start.y) * t,
+          COLORS.purple, 3, { life: 0.25, speed: 15 }
+        );
+      }
+      this.particles.burst(end.x, end.y, COLORS.cyan, 16, { life: 0.5, speed: 100 });
+      target.takeDamage(SPELL_DAMAGE);
+    } else {
+      const fx = start.x + (player.facingLeft ? -22 : 22);
+      this.particles.burst(fx, start.y, COLORS.purple, 6, { life: 0.3, speed: 40 });
+    }
+  }
+
+  openShop() {
+    this.state = 'shop';
+    this.refreshShop();
+  }
+
+  refreshShop() {
+    this.ui.showShop(this.loot, SHOP_ITEMS, (id) => this.handleShopBuy(id), () => this.closeShop());
+  }
+
+  handleShopBuy(id) {
+    const item = SHOP_ITEMS.find((i) => i.id === id);
+    if (!item || this.loot < item.cost) return;
+    this.loot -= item.cost;
+    if (item.id === 'heal') {
+      this.player.hp = this.player.maxHp;
+    } else if (item.id === 'maxhp') {
+      this.player.maxHp += 1;
+      this.player.hp = Math.min(this.player.maxHp, this.player.hp + 1);
+    } else if (item.id === 'attack') {
+      this.player.attack += 1;
+    }
+    this.refreshShop();
+  }
+
+  closeShop() {
+    this.ui.hideShop();
+    this.state = 'playing';
   }
 
   collectLoot() {
@@ -238,12 +305,14 @@ class Game {
   }
 
   update(dt) {
+    const spellKeyPressed = this.input.wasPressed('Space');
     this.input.endFrame();
     if (this.state !== 'playing') return;
 
     this.handlePlayerMove(dt);
     this.player.update(dt);
     if (this.state !== 'playing') return;
+    this.handlePlayerSpell(dt, spellKeyPressed);
     this.fov.update(this.tileMap, this.player.gridX, this.player.gridY);
     this.collectLoot();
 
@@ -268,6 +337,7 @@ class Game {
     }
 
     this.ui.updateHud(this.player, this.levelIndex, TOTAL_LEVELS, this.stemCorrect, this.stemTotal, this.loot);
+    this.ui.updateSpellHud(this.player.spellCooldown);
   }
 
   renderTiles() {
@@ -307,6 +377,10 @@ class Game {
       if (pickup.collected) continue;
       if (this.fov.stateAt(pickup.x, pickup.y) !== 'visible') continue;
       this.renderer.drawSprite(gemImg, pickup.x * TILE_SIZE, pickup.y * TILE_SIZE);
+    }
+
+    if (this.shopPos && this.fov.stateAt(this.shopPos.x, this.shopPos.y) !== 'hidden') {
+      this.renderer.drawSprite(this.assets.get('shopkeeper'), this.shopPos.x * TILE_SIZE, this.shopPos.y * TILE_SIZE);
     }
   }
 
