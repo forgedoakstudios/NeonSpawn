@@ -1,0 +1,18 @@
+[
+  { "category": "Science", "question": "What gas do plants absorb from the air to make their own food?", "choices": ["Oxygen", "Carbon dioxide", "Nitrogen", "Helium"], "answer": 1 },
+  { "category": "Science", "question": "Which planet is known as the Red Planet?", "choices": ["Venus", "Jupiter", "Mars", "Saturn"], "answer": 2 },
+  { "category": "Science", "question": "What state of matter has no fixed shape and no fixed volume?", "choices": ["Solid", "Liquid", "Gas", "Plasma"], "answer": 2 },
+  { "category": "Science", "question": "What force pulls objects down toward the Earth?", "choices": ["Friction", "Gravity", "Magnetism", "Tension"], "answer": 1 },
+  { "category": "Technology", "question": "What does 'www' stand for in a website address?", "choices": ["World Wide Web", "World Web Wide", "Web World Wide", "Wide World Web"], "answer": 0 },
+  { "category": "Technology", "question": "Which part of a computer is often called its 'brain'?", "choices": ["Monitor", "Keyboard", "CPU", "Mouse"], "answer": 2 },
+  { "category": "Technology", "question": "What do you call a set of step-by-step instructions a computer follows?", "choices": ["A browser", "An algorithm", "A firewall", "A pixel"], "answer": 1 },
+  { "category": "Engineering", "question": "What simple machine is a ramp that helps move objects up or down?", "choices": ["Lever", "Pulley", "Inclined plane", "Wheel and axle"], "answer": 2 },
+  { "category": "Engineering", "question": "Which shape is known for being one of the strongest in construction, used in bridges?", "choices": ["Circle", "Triangle", "Oval", "Trapezoid"], "answer": 1 },
+  { "category": "Engineering", "question": "What do engineers call a first rough model of an invention?", "choices": ["A prototype", "A blueprint copy", "A schematic seed", "A draft coin"], "answer": 0 },
+  { "category": "Math", "question": "What is 7 x 8?", "choices": ["54", "56", "64", "48"], "answer": 1 },
+  { "category": "Math", "question": "A triangle has how many sides?", "choices": ["2", "3", "4", "5"], "answer": 1 },
+  { "category": "Math", "question": "What is half of 100?", "choices": ["25", "40", "50", "60"], "answer": 2 },
+  { "category": "Math", "question": "Which number is a prime number?", "choices": ["9", "15", "17", "21"], "answer": 2 },
+  { "category": "Science", "question": "What is the closest star to Earth?", "choices": ["The North Star", "The Sun", "Alpha Centauri", "Sirius"], "answer": 1 },
+  { "category": "Math", "question": "If a shape has 4 equal sides and 4 right angles, what is it called?", "choices": ["Rectangle", "Square", "Rhombus", "Pentagon"], "answer": 1 }
+]

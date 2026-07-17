@@ -1,0 +1,18 @@
+[
+  { "category": "Science", "question": "What is the powerhouse of the cell, responsible for producing ATP?", "choices": ["Ribosome", "Mitochondria", "Nucleus", "Golgi apparatus"], "answer": 1 },
+  { "category": "Science", "question": "Newton's Second Law of Motion is best expressed as which equation?", "choices": ["E = mc²", "F = ma", "PV = nRT", "V = IR"], "answer": 1 },
+  { "category": "Science", "question": "Which of these is NOT one of the four fundamental forces of physics?", "choices": ["Gravity", "Electromagnetism", "Strong nuclear force", "Centrifugal force"], "answer": 3 },
+  { "category": "Science", "question": "In genetics, what does 'DNA' stand for?", "choices": ["Deoxyribonucleic acid", "Dinitrogen acid", "Dual nucleic array", "Deoxy nuclear acid"], "answer": 0 },
+  { "category": "Technology", "question": "In binary, what is the decimal number 10 represented as?", "choices": ["1000", "1010", "1100", "0110"], "answer": 1 },
+  { "category": "Technology", "question": "What does 'HTTP' stand for?", "choices": ["HyperText Transfer Protocol", "High Transfer Text Program", "Hyperlink Text Transport Process", "Home Tool Transfer Protocol"], "answer": 0 },
+  { "category": "Technology", "question": "What type of algorithm efficiency describes runtime that doubles every time input size increases by one?", "choices": ["Logarithmic — O(log n)", "Linear — O(n)", "Exponential — O(2ⁿ)", "Constant — O(1)"], "answer": 2 },
+  { "category": "Engineering", "question": "What structural principle explains why a suspension bridge's cables are always in tension, not compression?", "choices": ["Cables can only pull, not push", "Cables are heavier than steel beams", "Tension is easier to weld", "Bridges must flex constantly"], "answer": 0 },
+  { "category": "Engineering", "question": "In electrical engineering, what does Ohm's Law state?", "choices": ["Voltage equals current divided by resistance", "Voltage equals current times resistance", "Current equals voltage times resistance", "Resistance equals power over current"], "answer": 1 },
+  { "category": "Engineering", "question": "What is the term for testing a system by deliberately trying to break it before release?", "choices": ["Unit testing", "Stress testing", "Regression testing", "Alpha branding"], "answer": 1 },
+  { "category": "Math", "question": "What is the derivative of x² with respect to x?", "choices": ["x", "2x", "x²", "2x²"], "answer": 1 },
+  { "category": "Math", "question": "In a right triangle, which identity relates the side lengths?", "choices": ["a + b = c", "a² + b² = c²", "a × b = c", "a² − b² = c"], "answer": 1 },
+  { "category": "Math", "question": "What is the value of π (pi) rounded to two decimal places?", "choices": ["3.14", "3.41", "2.14", "3.12"], "answer": 0 },
+  { "category": "Math", "question": "What is log₁₀(1000)?", "choices": ["2", "3", "10", "100"], "answer": 1 },
+  { "category": "Science", "question": "Which subatomic particle has a negative electric charge?", "choices": ["Proton", "Neutron", "Electron", "Positron"], "answer": 2 },
+  { "category": "Math", "question": "What is the sum of the interior angles of a triangle?", "choices": ["90°", "180°", "270°", "360°"], "answer": 1 }
+]
