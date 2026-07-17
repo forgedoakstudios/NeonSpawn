@@ -49,7 +49,8 @@ games/raiders/
   assets/                    Curated, renamed assets actually loaded by the game
     sprites/                   player.png, enemy_grunt.png, enemy_brute.png
     tiles/                      floor.png, wall.png
-    ui/                          chest_closed.png, chest_open.png, exit_portal.png
+    ui/                          chest_closed.png, chest_open.png, exit_portal.png,
+                                   loot_gem.png, loading_screen.png
     audio/                      (not wired up yet)
   assets-inbox/              Drop raw asset packs here — nothing in here is read by the game
 ```
@@ -67,7 +68,14 @@ games/raiders/
 
 Currently expected filenames: `sprites/player.png`, `sprites/enemy_grunt.png`,
 `sprites/enemy_brute.png`, `tiles/floor.png`, `tiles/wall.png`, `ui/chest_closed.png`,
-`ui/chest_open.png`, `ui/exit_portal.png` — all 32×32 (or a multiple of it).
+`ui/chest_open.png`, `ui/exit_portal.png`, `ui/loot_gem.png` — all 32×32 (or a multiple of it).
+
+`ui/loading_screen.png` is the one exception: it's a full illustrated background for the
+Dungeon Master intro screen (not part of `AssetLoader`'s canvas-sprite manifest — it's a plain
+CSS background on `#dm-screen` in `raiders.html`). It's shown with `background-size: contain`
+so the whole image is always visible letterboxed, never cropped — safe for any wide illustration
+with important content (a title lockup, a quote) near the edges. Roughly 16:9-ish landscape,
+1200px+ wide, works well; the game frame itself is 800×576.
 
 ## STEM trivia chests
 
