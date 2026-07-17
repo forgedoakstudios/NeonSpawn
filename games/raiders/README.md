@@ -55,13 +55,29 @@ games/raiders/
                                    loot_gem.png, spell_bolt.png, loading_screen.png
     audio/                      (not wired up yet)
   assets-inbox/              Drop raw asset packs here — nothing in here is read by the game
+    sprites/
+      dungeon-crawl-stone-soup-32x32/
+      0x72-dungeon-tileset-ii/
+    magic-effects/
+      foozle-pixel-magic-effects/
+    music/
+      xdeviruchi-8bit-fantasy-adventure/
+      tallbeard-music-loop-bundle/
+      dungeon-ambience/
+    sfx/
+      rpg-essentials/
+      interface-ui/
+      sword-combat/
+      coin-pickup/
 ```
 
 ## Adding your art
 
-1. Drop whatever you've got (sprite sheets, tilesets, zips, individual PNGs — doesn't matter)
-   into `games/raiders/assets-inbox/`.
-2. Tell me what's in there and I'll pick, rename, and slice/resize what's needed into
+1. Unzip each pack's download straight into its matching folder under `games/raiders/assets-inbox/`
+   (e.g. the DCSS tileset goes in `assets-inbox/sprites/dungeon-crawl-stone-soup-32x32/`). Doesn't
+   need to be tidy — whole folders, loose files, zips, doesn't matter, as long as it lands in the
+   right pack's folder so I know which source it came from.
+2. Tell me it's in there and I'll pick, rename, and slice/resize what's needed into
    `games/raiders/assets/` using the filenames the loader expects (see the manifest at the top
    of `js/engine/assets.js`).
 3. Nothing else needs to change — `AssetLoader` swaps a placeholder for the real image the
