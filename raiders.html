@@ -52,6 +52,15 @@ a{color:inherit;text-decoration:none;}
 .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
 .overlay.hidden{display:none;}
 
+/* DUNGEON MASTER SCREEN */
+#dm-screen{background:radial-gradient(ellipse at center,rgba(255,45,120,0.14) 0%,rgba(6,6,15,0.97) 70%);}
+.dm-card{max-width:480px;text-align:center;}
+.dm-icon{font-size:40px;filter:drop-shadow(0 0 12px rgba(255,45,120,0.6));margin-bottom:8px;}
+.dm-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--pink);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:14px;}
+.dm-line{font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--text);line-height:1.5;margin-bottom:10px;}
+.dm-emphasis{color:var(--yellow);font-weight:800;}
+.dm-status{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:12px;}
+
 /* TITLE SCREEN */
 #title-screen{background:radial-gradient(ellipse at center,rgba(155,48,255,0.18) 0%,rgba(6,6,15,0.96) 70%);}
 .title-card{max-width:520px;text-align:center;}
@@ -84,12 +93,17 @@ a{color:inherit;text-decoration:none;}
 .hud-heart{color:var(--pink);text-shadow:0 0 6px var(--pink);font-size:14px;}
 .hud-heart.empty{color:rgba(255,45,120,0.2);text-shadow:none;}
 .hud-level{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:0.08em;}
+.hud-loot{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);letter-spacing:0.08em;}
 .hud-stem{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);letter-spacing:0.08em;}
 
 /* QUIZ MODAL */
 .modal-overlay{background:rgba(6,6,15,0.88);backdrop-filter:blur(2px);}
 .quiz-panel{max-width:460px;width:100%;background:var(--panel);border:1px solid var(--purple);border-radius:10px;padding:24px;box-shadow:0 0 30px rgba(155,48,255,0.25);}
-.quiz-category{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:0.2em;margin-bottom:8px;}
+.quiz-panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.quiz-tries{display:flex;gap:4px;}
+.tries-pip{font-size:11px;color:var(--yellow);text-shadow:0 0 6px var(--yellow);}
+.tries-pip.spent{color:rgba(255,51,85,0.35);text-shadow:none;}
+.quiz-category{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--purple);letter-spacing:0.2em;margin-bottom:0;}
 .quiz-question{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;line-height:1.35;margin-bottom:16px;}
 .quiz-choices{display:flex;flex-direction:column;gap:8px;}
 .quiz-choice-btn{
@@ -109,7 +123,13 @@ a{color:inherit;text-decoration:none;}
 .end-title{font-family:'Bungee',sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:12px;}
 .end-title.win{color:var(--green);text-shadow:0 0 16px rgba(60,255,138,0.5);}
 .end-title.lose{color:var(--red);text-shadow:0 0 16px rgba(255,51,85,0.5);}
+.end-flavor{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-size:14px;color:var(--text);line-height:1.5;margin-bottom:14px;}
 .end-stats{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+.end-actions{margin-top:16px;display:flex;flex-direction:column;gap:10px;align-items:center;}
+.end-actions.hidden{display:none;}
+.btn-tryagain{background:var(--cyan);}
+.btn-town{background:var(--panel);color:var(--red);border:1px solid var(--red);box-shadow:none;font-size:12px;padding:12px 24px;}
+.btn-town:hover{background:rgba(255,51,85,0.1);transform:none;}
 
 .back-link{text-align:center;padding:14px 0 28px;}
 .back-link a{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;}
@@ -127,7 +147,21 @@ a{color:inherit;text-decoration:none;}
   <div class="game-frame">
     <canvas id="game-canvas" width="800" height="576"></canvas>
 
-    <div id="title-screen" class="overlay">
+    <div id="dm-screen" class="overlay">
+      <div class="dm-card">
+        <div class="dm-icon">&#128128;</div>
+        <div class="dm-label">&#9608; The Dungeon Master</div>
+        <p class="dm-line">"So. Another raider at my door."</p>
+        <p class="dm-line">"Steel and speed will get you through the first few rooms. But every path down is
+          sealed behind a riddle &mdash; three guesses, no more. Answer wrong three times, and the dungeon
+          keeps what you carried in."</p>
+        <p class="dm-line dm-emphasis">"Are you smart enough to survive... and escape?"</p>
+        <button id="dm-enter-btn" class="start-btn" disabled>Enter the Dungeon</button>
+        <div id="dm-status" class="dm-status">Loading...</div>
+      </div>
+    </div>
+
+    <div id="title-screen" class="overlay hidden">
       <div class="title-card">
         <h1 class="game-title">Raiders<span>of the</span>Lost Dungeon</h1>
         <p class="game-tagline">Descend. Fight. Find the chest. Answer to unlock the way down.</p>
@@ -148,13 +182,17 @@ a{color:inherit;text-decoration:none;}
       <div class="hud-top">
         <div id="hud-hearts" class="hud-hearts"></div>
         <div id="hud-level" class="hud-level"></div>
+        <div id="hud-loot" class="hud-loot"></div>
         <div id="hud-stem" class="hud-stem"></div>
       </div>
     </div>
 
     <div id="quiz-modal" class="overlay modal-overlay hidden">
       <div class="quiz-panel">
-        <div id="quiz-category" class="quiz-category"></div>
+        <div class="quiz-panel-top">
+          <div id="quiz-category" class="quiz-category"></div>
+          <div id="quiz-tries" class="quiz-tries"></div>
+        </div>
         <div id="quiz-question" class="quiz-question"></div>
         <div id="quiz-choices" class="quiz-choices"></div>
         <div id="quiz-feedback" class="quiz-feedback"></div>
@@ -164,8 +202,15 @@ a{color:inherit;text-decoration:none;}
     <div id="end-screen" class="overlay modal-overlay hidden">
       <div class="end-panel">
         <div id="end-title" class="end-title"></div>
+        <div id="end-flavor" class="end-flavor"></div>
         <div id="end-stats" class="end-stats"></div>
-        <button id="end-restart-btn" class="start-btn">Play Again</button>
+        <div id="end-win-actions" class="end-actions hidden">
+          <button id="end-restart-btn" class="start-btn">Play Again</button>
+        </div>
+        <div id="end-lose-actions" class="end-actions hidden">
+          <button id="end-tryagain-btn" class="start-btn btn-tryagain">Try Again</button>
+          <button id="end-town-btn" class="start-btn btn-town">Go to Town &mdash; Lose All Loot</button>
+        </div>
       </div>
     </div>
   </div>

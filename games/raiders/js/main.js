@@ -1,4 +1,4 @@
-import { TILE, TILE_SIZE, TOTAL_LEVELS, COLORS } from './config.js';
+import { TILE, TILE_SIZE, TOTAL_LEVELS, MAX_QUIZ_TRIES, COLORS } from './config.js';
 import { GameLoop } from './engine/loop.js';
 import { Input } from './engine/input.js';
 import { Renderer } from './engine/renderer.js';
@@ -30,26 +30,43 @@ class Game {
     this.levelIndex = 0;
     this.stemCorrect = 0;
     this.stemTotal = 0;
+    this.loot = 0;
     this.chestOpened = false;
     this.quiz = null;
+    this.lootPickups = [];
+
+    this.currentQuestion = null;
+    this.quizDisabled = new Set();
+    this.quizTriesLeft = MAX_QUIZ_TRIES;
   }
 
   async boot() {
+    this.ui.showDM(() => this.ui.showTitle((tier) => this.startRun(tier)));
     await this.assets.loadAll();
-    this.ui.showTitle((tier) => this.startRun(tier));
+    this.ui.setDMReady();
     this.loop.start();
   }
 
-  async startRun(tier) {
+  async startRun(tier, { carryLoot = 0 } = {}) {
     this.ageTier = tier;
     this.levelIndex = 0;
     this.stemCorrect = 0;
     this.stemTotal = 0;
+    this.loot = carryLoot;
     this.quiz = new QuizManager(tier, BASE_PATH);
     await this.quiz.load();
     this.player = null;
     this.loadLevel(0, { freshPlayer: true });
     this.ui.showHud();
+  }
+
+  tryAgain() {
+    this.startRun(this.ageTier, { carryLoot: this.loot });
+  }
+
+  goToTown() {
+    this.loot = 0;
+    this.ui.showTitle((tier) => this.startRun(tier));
   }
 
   loadLevel(index, { freshPlayer = false } = {}) {
@@ -68,6 +85,7 @@ class Game {
     }
 
     this.enemies = level.enemySpawns.map((s) => new Enemy(s.x, s.y, s.type));
+    this.lootPickups = level.lootSpawns.map((p) => ({ x: p.x, y: p.y, collected: false }));
     this.fov = new FogOfWar(7);
     this.fov.update(this.tileMap, this.player.gridX, this.player.gridY);
     this.particles = new ParticleSystem();
@@ -112,41 +130,111 @@ class Game {
     if (wasChest) this.triggerQuiz();
   }
 
+  collectLoot() {
+    const p = this.player;
+    for (const pickup of this.lootPickups) {
+      if (pickup.collected || pickup.x !== p.gridX || pickup.y !== p.gridY) continue;
+      pickup.collected = true;
+      this.loot += 1;
+      const wx = pickup.x * TILE_SIZE + TILE_SIZE / 2;
+      const wy = pickup.y * TILE_SIZE + TILE_SIZE / 2;
+      this.particles.burst(wx, wy, COLORS.yellow, 8, { life: 0.4, speed: 70 });
+    }
+  }
+
   triggerQuiz() {
     this.state = 'quiz';
-    const q = this.quiz.next();
-    this.ui.showQuiz(q, (correct) => {
+    this.currentQuestion = this.quiz.next();
+    this.quizDisabled = new Set();
+    this.quizTriesLeft = MAX_QUIZ_TRIES;
+    this.renderQuizAttempt();
+  }
+
+  renderQuizAttempt() {
+    this.ui.showQuizAttempt(
+      this.currentQuestion,
+      this.quizDisabled,
+      this.quizTriesLeft,
+      MAX_QUIZ_TRIES,
+      (idx) => this.handleQuizChoice(idx)
+    );
+  }
+
+  handleQuizChoice(idx) {
+    const correct = idx === this.currentQuestion.answer;
+
+    if (correct) {
       this.stemTotal += 1;
-      if (correct) this.stemCorrect += 1;
+      this.stemCorrect += 1;
       this.chestOpened = true;
-      this.state = 'playing';
-    });
+      this.ui.showQuizFeedback(true, null);
+      setTimeout(() => {
+        this.ui.hideQuiz();
+        this.state = 'playing';
+      }, 1200);
+      return;
+    }
+
+    this.quizDisabled.add(idx);
+    this.quizTriesLeft -= 1;
+
+    if (this.quizTriesLeft > 0) {
+      this.ui.showQuizFeedback(false, null);
+      setTimeout(() => this.renderQuizAttempt(), 900);
+    } else {
+      this.stemTotal += 1;
+      this.ui.showQuizFeedback(false, this.currentQuestion.answer);
+      setTimeout(() => {
+        this.ui.hideQuiz();
+        this.gameOver('riddle-fail');
+      }, 1600);
+    }
   }
 
   handleExit() {
     const p = this.player;
     if (p.gridX === this.exitPos.x && p.gridY === this.exitPos.y && this.chestOpened) {
-      this.save.save({
-        ageTier: this.ageTier,
-        levelIndex: this.levelIndex,
-        playerHp: this.player.hp,
-        playerMaxHp: this.player.maxHp,
-        correctAnswers: this.stemCorrect,
-        totalQuestions: this.stemTotal,
-      });
+      this.checkpoint();
       if (this.levelIndex + 1 >= TOTAL_LEVELS) {
         this.state = 'win';
-        this.ui.showEnd(true, {
+        this.ui.showEnd('win', {
           levelIndex: this.levelIndex,
           totalLevels: TOTAL_LEVELS,
           stemCorrect: this.stemCorrect,
           stemTotal: this.stemTotal,
-        }, () => this.ui.showTitle((tier) => this.startRun(tier)));
+          loot: this.loot,
+        }, { onRestart: () => this.ui.showTitle((tier) => this.startRun(tier)) });
       } else {
         this.loadLevel(this.levelIndex + 1);
         this.ui.showHud();
       }
     }
+  }
+
+  checkpoint() {
+    this.save.save({
+      ageTier: this.ageTier,
+      levelIndex: this.levelIndex,
+      playerHp: this.player.hp,
+      playerMaxHp: this.player.maxHp,
+      correctAnswers: this.stemCorrect,
+      totalQuestions: this.stemTotal,
+    });
+  }
+
+  gameOver(reason) {
+    this.state = 'gameover';
+    this.checkpoint();
+    this.ui.showEnd(reason, {
+      levelIndex: this.levelIndex,
+      totalLevels: TOTAL_LEVELS,
+      stemCorrect: this.stemCorrect,
+      stemTotal: this.stemTotal,
+      loot: this.loot,
+    }, {
+      onTryAgain: () => this.tryAgain(),
+      onTown: () => this.goToTown(),
+    });
   }
 
   update(dt) {
@@ -157,6 +245,7 @@ class Game {
     this.player.update(dt);
     if (this.state !== 'playing') return;
     this.fov.update(this.tileMap, this.player.gridX, this.player.gridY);
+    this.collectLoot();
 
     const occupied = new Set();
     for (const e of this.enemies) if (e.alive) occupied.add(`${e.gridX},${e.gridY}`);
@@ -174,25 +263,11 @@ class Game {
     this.handleExit();
 
     if (!this.player.alive) {
-      this.state = 'gameover';
-      this.save.save({
-        ageTier: this.ageTier,
-        levelIndex: this.levelIndex,
-        playerHp: 0,
-        playerMaxHp: this.player.maxHp,
-        correctAnswers: this.stemCorrect,
-        totalQuestions: this.stemTotal,
-      });
-      this.ui.showEnd(false, {
-        levelIndex: this.levelIndex,
-        totalLevels: TOTAL_LEVELS,
-        stemCorrect: this.stemCorrect,
-        stemTotal: this.stemTotal,
-      }, () => this.ui.showTitle((tier) => this.startRun(tier)));
+      this.gameOver('death');
       return;
     }
 
-    this.ui.updateHud(this.player, this.levelIndex, TOTAL_LEVELS, this.stemCorrect, this.stemTotal);
+    this.ui.updateHud(this.player, this.levelIndex, TOTAL_LEVELS, this.stemCorrect, this.stemTotal, this.loot);
   }
 
   renderTiles() {
@@ -226,6 +301,13 @@ class Game {
         if (vis === 'discovered') this.renderer.fillTile(wx, wy, '#000', 0.55);
       }
     }
+
+    const gemImg = this.assets.get('loot_gem');
+    for (const pickup of this.lootPickups) {
+      if (pickup.collected) continue;
+      if (this.fov.stateAt(pickup.x, pickup.y) !== 'visible') continue;
+      this.renderer.drawSprite(gemImg, pickup.x * TILE_SIZE, pickup.y * TILE_SIZE);
+    }
   }
 
   render() {
@@ -252,7 +334,7 @@ class Game {
     this.particles.render(this.renderer);
 
     if (!this.chestOpened) {
-      this.renderer.text('QUESTION LOCKED', this.chestPos.x * TILE_SIZE + TILE_SIZE / 2, this.chestPos.y * TILE_SIZE - 8, {
+      this.renderer.text('RIDDLE LOCKED', this.chestPos.x * TILE_SIZE + TILE_SIZE / 2, this.chestPos.y * TILE_SIZE - 8, {
         color: COLORS.yellow, glow: COLORS.yellow, font: '10px "Share Tech Mono", monospace',
       });
     }

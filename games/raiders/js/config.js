@@ -8,6 +8,8 @@ export const DUNGEON_W = 44;
 export const DUNGEON_H = 34;
 
 export const TOTAL_LEVELS = 3;
+export const MAX_QUIZ_TRIES = 3;
+export const LOOT_PER_LEVEL = 4;
 
 export const COLORS = {
   pink:   '#FF2D78',

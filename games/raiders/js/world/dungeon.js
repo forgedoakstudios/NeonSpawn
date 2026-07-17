@@ -1,4 +1,4 @@
-import { TILE, DUNGEON_W, DUNGEON_H } from '../config.js';
+import { TILE, DUNGEON_W, DUNGEON_H, LOOT_PER_LEVEL } from '../config.js';
 import { TileMap } from './tile.js';
 
 class Room {
@@ -108,6 +108,17 @@ export function generateDungeon(levelIndex) {
     });
   }
 
+  const lootRooms = rooms.filter((r) => r !== startRoom);
+  const lootSpawns = [];
+  for (let i = 0; i < LOOT_PER_LEVEL; i++) {
+    const room = lootRooms[randInt(0, lootRooms.length - 1)];
+    if (!room) break;
+    const x = randInt(room.x, room.x + room.w - 1);
+    const y = randInt(room.y, room.y + room.h - 1);
+    if (map.get(x, y) !== TILE.FLOOR) continue;
+    lootSpawns.push({ x, y });
+  }
+
   return {
     map,
     rooms,
@@ -115,5 +126,6 @@ export function generateDungeon(levelIndex) {
     chestPos: { x: farthest.centerX, y: farthest.centerY },
     exitPos: { x: exitX, y: farthest.centerY },
     enemySpawns,
+    lootSpawns,
   };
 }

@@ -125,6 +125,28 @@ const PLACEHOLDERS = {
     });
     return c;
   },
+  loot_gem(size) {
+    const c = canvas(size, size);
+    const ctx = c.getContext('2d');
+    const cx = size / 2, cy = size / 2;
+    glow(ctx, COLORS.yellow, 10, () => {
+      ctx.fillStyle = COLORS.yellow;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - size * 0.24);
+      ctx.lineTo(cx + size * 0.18, cy - size * 0.04);
+      ctx.lineTo(cx, cy + size * 0.24);
+      ctx.lineTo(cx - size * 0.18, cy - size * 0.04);
+      ctx.closePath();
+      ctx.fill();
+    });
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - size * 0.24);
+    ctx.lineTo(cx, cy + size * 0.24);
+    ctx.stroke();
+    return c;
+  },
   exit_portal(size) {
     const c = canvas(size, size);
     const ctx = c.getContext('2d');
@@ -154,6 +176,7 @@ const MANIFEST = {
   chest_closed:  { src: 'ui/chest_closed.png',       size: TILE_SIZE },
   chest_open:    { src: 'ui/chest_open.png',         size: TILE_SIZE },
   exit_portal:   { src: 'ui/exit_portal.png',        size: TILE_SIZE },
+  loot_gem:      { src: 'ui/loot_gem.png',           size: TILE_SIZE },
 };
 
 export class AssetLoader {
